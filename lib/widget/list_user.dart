@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:leopardmachine/model/user_model.dart';
 import 'package:leopardmachine/utility/my_constant.dart';
 import 'package:leopardmachine/utility/my_style.dart';
@@ -57,22 +58,30 @@ class _UserListState extends State<UserList> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        new RefreshIndicator(
-          onRefresh: () async {
-            await _refresh();
-          },
-          child: ListView.builder(
-            physics: AlwaysScrollableScrollPhysics(),
-            itemCount: _usersForDisplay.length + 1,
-            itemBuilder: (context, index) {
-              return index == 0 ? _searchUser() : _listUserItems(index - 1);
-            },
-          ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'รายชื่อพนักงานในระบบ',
+          style: MyStyle().kanit,
         ),
-        addButton(),
-      ],
+      ),
+      body: Stack(
+        children: <Widget>[
+          new RefreshIndicator(
+            onRefresh: () async {
+              await _refresh();
+            },
+            child: ListView.builder(
+              physics: AlwaysScrollableScrollPhysics(),
+              itemCount: _usersForDisplay.length + 1,
+              itemBuilder: (context, index) {
+                return index == 0 ? _searchUser() : _listUserItems(index - 1);
+              },
+            ),
+          ),
+          addButton(),
+        ],
+      ),
     );
   }
 
@@ -114,6 +123,7 @@ class _UserListState extends State<UserList> {
         decoration: InputDecoration(
           prefixIcon: Icon(Icons.search),
           labelText: 'ค้นหารายชื่อพนักงาน',
+          labelStyle: MyStyle().kanit,
           fillColor: MyStyle().red400,
           enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(color: MyStyle().red400)),
@@ -142,23 +152,26 @@ class _UserListState extends State<UserList> {
         leading: CircleAvatar(
           radius: 28.0,
           backgroundColor: MyStyle().red400,
-          //backgroundImage: NetworkImage(null),
         ),
         title: Text(
-          _usersForDisplay[index].firstName.toString() +
-              ' ' +
-              _usersForDisplay[index].lastName.toString(),
-          style: TextStyle(
-            color: MyStyle().red400,
-            fontSize: 16.0,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+            _usersForDisplay[index].firstName.toString() +
+                ' ' +
+                _usersForDisplay[index].lastName.toString(),
+            style: GoogleFonts.kanit(
+              textStyle: TextStyle(
+                color: MyStyle().red400,
+                fontSize: 16.0,
+                fontWeight: FontWeight.bold,
+              ),
+            )),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text('ประเภทพนักงาน : ' +
-                convertUserType(_usersForDisplay[index].userType.toString())),
+            Text(
+              'ประเภทพนักงาน : ' +
+                  convertUserType(_usersForDisplay[index].userType.toString()),
+              style: MyStyle().kanit,
+            ),
           ],
         ),
         onTap: () {

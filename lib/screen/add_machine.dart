@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:leopardmachine/utility/my_constant.dart';
 import 'package:leopardmachine/utility/my_style.dart';
 import 'package:intl/intl.dart';
@@ -22,7 +23,10 @@ class _AddMachineState extends State<AddMachine> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('เพิ่มเครื่องมือ/เครื่องจักร'),
+        title: Text(
+          'เพิ่มเครื่องมือ/เครื่องจักร',
+          style: MyStyle().kanit,
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -52,7 +56,9 @@ class _AddMachineState extends State<AddMachine> {
               textCapitalization: TextCapitalization.characters,
               onChanged: (value) => machineCode = value.trim(),
               decoration: InputDecoration(
-                labelStyle: TextStyle(color: MyStyle().red400),
+                labelStyle: GoogleFonts.kanit(
+                  textStyle: TextStyle(color: MyStyle().red400),
+                ),
                 labelText: 'รหัสเครื่องจักร',
                 prefixIcon: Icon(
                   Icons.account_box,
@@ -77,7 +83,9 @@ class _AddMachineState extends State<AddMachine> {
             child: TextField(
               onChanged: (value) => machineName = value.trim(),
               decoration: InputDecoration(
-                labelStyle: TextStyle(color: MyStyle().red400),
+                labelStyle: GoogleFonts.kanit(
+                  textStyle: TextStyle(color: MyStyle().red400),
+                ),
                 labelText: 'ชื่อเครื่องจักร',
                 prefixIcon: Icon(
                   Icons.account_box,
@@ -146,7 +154,9 @@ class _AddMachineState extends State<AddMachine> {
                     .then((date) {
                   setState(() {
                     appointmentDate = date;
-                    _datetime = DateFormat('dd/MM/yyyy').format(date.toLocal());
+                    _datetime = DateFormat('dd/MM/yyyy')
+                        .format(date.toLocal())
+                        .toString();
                   });
                 });
               })
@@ -176,7 +186,9 @@ class _AddMachineState extends State<AddMachine> {
           },
           child: Text(
             'เพิ่มเครื่องจักร',
-            style: TextStyle(color: Colors.white),
+            style: GoogleFonts.kanit(
+              textStyle: TextStyle(color: Colors.white),
+            ),
           ),
         ),
       );

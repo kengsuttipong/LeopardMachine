@@ -2,11 +2,12 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:leopardmachine/screen/machine_fix_inform.dart';
 import 'package:leopardmachine/utility/my_style.dart';
 import 'package:leopardmachine/utility/normal_dialog.dart';
 import 'package:leopardmachine/model/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:leopardmachine/screen/main_pharmacy.dart';
 import 'package:leopardmachine/utility/my_constant.dart';
 
 class Home extends StatefulWidget {
@@ -21,7 +22,10 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('เข้าสู่ระบบ'),
+        title: Text(
+          'เข้าสู่ระบบ',
+          style: MyStyle().kanit,
+        ),
       ),
       body: Container(
         child: Center(
@@ -55,8 +59,10 @@ class _HomeState extends State<Home> {
               Icons.account_box,
               color: MyStyle().red400,
             ),
-            labelStyle: TextStyle(color: MyStyle().red400),
-            labelText: 'Username',
+            labelStyle: GoogleFonts.kanit(
+              textStyle: TextStyle(color: MyStyle().red400),
+            ),
+            labelText: 'ชื่อผู้ใช้งาน',
             enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: MyStyle().red400)),
             focusedBorder: OutlineInputBorder(
@@ -75,8 +81,10 @@ class _HomeState extends State<Home> {
               Icons.lock,
               color: MyStyle().red400,
             ),
-            labelStyle: TextStyle(color: MyStyle().red400),
-            labelText: 'Password',
+            labelStyle: GoogleFonts.kanit(
+              textStyle: TextStyle(color: MyStyle().red400),
+            ),
+            labelText: 'รหัสผ่าน',
             enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: MyStyle().red400)),
             focusedBorder: OutlineInputBorder(
@@ -101,7 +109,9 @@ class _HomeState extends State<Home> {
           },
           child: Text(
             'เข้าสู่ระบบ',
-            style: TextStyle(color: Colors.white),
+            style: GoogleFonts.kanit(
+              textStyle: TextStyle(color: Colors.white),
+            ),
           ),
         ),
       );
@@ -122,7 +132,7 @@ class _HomeState extends State<Home> {
           String userType = usermodel.userType;
           print('userType = $userType');
           if (userType == 'user_pharmacist') {
-            routeToService(MainPharmacy(), usermodel);
+            routeToService(MachineFixedInform(), usermodel);
           } else if (userType == 'rdo_shop') {
             //routeToService(MainShop(), usermodel);
           } else if (userType == 'rdo_rider') {

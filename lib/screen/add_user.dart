@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:leopardmachine/utility/my_constant.dart';
 import 'package:leopardmachine/utility/my_style.dart';
 import 'package:leopardmachine/utility/normal_dialog.dart';
@@ -29,7 +30,10 @@ class _AddUserState extends State<AddUser> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('เพิ่มผู้ใช้งาน'),
+        title: Text(
+          'เพิ่มผู้ใช้งาน',
+          style: MyStyle().kanit,
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -58,7 +62,10 @@ class _AddUserState extends State<AddUser> {
           Container(
             width: 220.0,
             child: DropdownButton(
-              hint: Text('เลือกประเภทพนักงาน'),
+              hint: Text(
+                'เลือกประเภทพนักงาน',
+                style: MyStyle().kanit,
+              ),
               value: selectedUser,
               onChanged: (Item value) {
                 setState(() {
@@ -72,7 +79,9 @@ class _AddUserState extends State<AddUser> {
                     children: <Widget>[
                       Text(
                         user.name,
-                        style: TextStyle(color: MyStyle().red400),
+                        style: GoogleFonts.kanit(
+                          textStyle: TextStyle(color: MyStyle().red400),
+                        ),
                       )
                     ],
                   ),
@@ -91,7 +100,11 @@ class _AddUserState extends State<AddUser> {
             child: TextField(
               onChanged: (value) => firstName = value.trim(),
               decoration: InputDecoration(
-                labelStyle: TextStyle(color: MyStyle().red400),
+                labelStyle: GoogleFonts.kanit(
+                  textStyle: TextStyle(
+                    color: MyStyle().red400,
+                  ),
+                ),
                 labelText: 'ชื่อจริง',
                 prefixIcon: Icon(
                   Icons.account_box,
@@ -116,7 +129,11 @@ class _AddUserState extends State<AddUser> {
             child: TextField(
               onChanged: (value) => lastName = value.trim(),
               decoration: InputDecoration(
-                labelStyle: TextStyle(color: MyStyle().red400),
+                labelStyle: GoogleFonts.kanit(
+                  textStyle: TextStyle(
+                    color: MyStyle().red400,
+                  ),
+                ),
                 labelText: 'นามสกุล',
                 prefixIcon: Icon(
                   Icons.account_box,
@@ -141,7 +158,11 @@ class _AddUserState extends State<AddUser> {
             child: TextField(
               onChanged: (value) => username = value.trim(),
               decoration: InputDecoration(
-                labelStyle: TextStyle(color: MyStyle().red400),
+                labelStyle: GoogleFonts.kanit(
+                  textStyle: TextStyle(
+                    color: MyStyle().red400,
+                  ),
+                ),
                 labelText: 'ชื่อผู้ใช้งาน',
                 prefixIcon: Icon(
                   Icons.account_box,
@@ -167,7 +188,11 @@ class _AddUserState extends State<AddUser> {
               Icons.lock,
               color: MyStyle().red400,
             ),
-            labelStyle: TextStyle(color: MyStyle().red400),
+            labelStyle: GoogleFonts.kanit(
+              textStyle: TextStyle(
+                color: MyStyle().red400,
+              ),
+            ),
             labelText: 'รหัสผ่าน',
             enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: MyStyle().red400)),
@@ -199,7 +224,11 @@ class _AddUserState extends State<AddUser> {
           },
           child: Text(
             'เพิ่มผู้ใช้งาน',
-            style: TextStyle(color: Colors.white),
+            style: GoogleFonts.kanit(
+              textStyle: TextStyle(
+                color: Colors.white,
+              ),
+            ),
           ),
         ),
       );
@@ -213,8 +242,8 @@ class _AddUserState extends State<AddUser> {
       if (response.toString() == 'null') {
         insertUpdateUser();
       } else {
-        normalDialog(context,
-            'ไม่สามารถบันทึกได้ เนื่องจากมีชื่อผู้ใช้งานนี้แล้ว');
+        normalDialog(
+            context, 'ไม่สามารถบันทึกได้ เนื่องจากมีชื่อผู้ใช้งานนี้แล้ว');
       }
     } catch (e) {}
   }

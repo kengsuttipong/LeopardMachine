@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class MyStyle {
   Color red400 = Colors.red.shade400;
   Color yellow800 = Colors.yellow.shade800;
   Color green400 = Colors.green.shade400;
+  var kanit = GoogleFonts.kanit();
 
   SizedBox mySizeBox() => SizedBox(
         width: 8.0,
@@ -19,10 +21,12 @@ class MyStyle {
 
   Text showTitle(String title) => Text(
         title,
-        style: TextStyle(
-          fontSize: 24.0,
-          color: Colors.red.shade400,
-          fontWeight: FontWeight.bold,
+        style: GoogleFonts.kanit(
+          textStyle: TextStyle(
+            fontSize: 24.0,
+            color: Colors.red.shade400,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       );
 
@@ -38,7 +42,10 @@ class MyStyle {
         width: MediaQuery.of(context).size.width * 0.5,
         child: Text(
           string,
-          style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold, color: MyStyle().red400),          
+          style: TextStyle(
+              fontSize: 20.0,
+              fontWeight: FontWeight.bold,
+              color: MyStyle().red400),
         ),
       ),
     );

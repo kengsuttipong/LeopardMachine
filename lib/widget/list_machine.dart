@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:leopardmachine/model/machine_model.dart';
 import 'package:leopardmachine/utility/my_constant.dart';
 import 'package:leopardmachine/utility/my_style.dart';
@@ -44,22 +45,30 @@ class _MachineListState extends State<MachineList> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        new RefreshIndicator(
-          onRefresh: () async {
-            await _refresh();
-          },
-          child: ListView.builder(
-            physics: AlwaysScrollableScrollPhysics(),
-            itemCount: _machinesForDisplay.length + 1,
-            itemBuilder: (context, index) {
-              return index == 0 ? _searchBar() : _listMachineItems(index - 1);
-            },
-          ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'เพิ่มข้อมูลเครื่องจักร',
+          style: MyStyle().kanit,
         ),
-        addButton(),
-      ],
+      ),
+      body: Stack(
+        children: <Widget>[
+          new RefreshIndicator(
+            onRefresh: () async {
+              await _refresh();
+            },
+            child: ListView.builder(
+              physics: AlwaysScrollableScrollPhysics(),
+              itemCount: _machinesForDisplay.length + 1,
+              itemBuilder: (context, index) {
+                return index == 0 ? _searchBar() : _listMachineItems(index - 1);
+              },
+            ),
+          ),
+          addButton(),
+        ],
+      ),
     );
   }
 
@@ -79,6 +88,7 @@ class _MachineListState extends State<MachineList> {
         decoration: InputDecoration(
           prefixIcon: Icon(Icons.search),
           labelText: 'ค้นหาเครื่องจักร',
+          labelStyle: MyStyle().kanit,
           fillColor: MyStyle().red400,
           enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(color: MyStyle().red400)),
@@ -116,18 +126,26 @@ class _MachineListState extends State<MachineList> {
         ),
         title: Text(
           _machinesForDisplay[index].machineName,
-          style: TextStyle(
-            color: MyStyle().red400,
-            fontSize: 16.0,
-            fontWeight: FontWeight.bold,
+          style: GoogleFonts.kanit(
+            textStyle: TextStyle(
+              color: MyStyle().red400,
+              fontSize: 16.0,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text('รหัสเครื่อง : ' + _machinesForDisplay[index].machineCode),
-            Text('วันซ่อมบำรุงครั้งต่อไป : ' +
-                _machinesForDisplay[index].appointmentDate),
+            Text(
+              'รหัสเครื่อง : ' + _machinesForDisplay[index].machineCode,
+              style: MyStyle().kanit,
+            ),
+            Text(
+              'วันซ่อมบำรุงครั้งต่อไป : ' +
+                  _machinesForDisplay[index].appointmentDate,
+              style: MyStyle().kanit,
+            ),
           ],
         ),
         onTap: () {
@@ -144,7 +162,10 @@ class _MachineListState extends State<MachineList> {
     return showDialog(
         context: context,
         builder: (context) => SimpleDialog(
-              title: Text('คูณต้องการลบเครื่องจักรใช่หรือไม่?'),
+              title: Text(
+                'คูณต้องการลบเครื่องจักรใช่หรือไม่?',
+                style: MyStyle().kanit,
+              ),
               children: <Widget>[
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -155,7 +176,9 @@ class _MachineListState extends State<MachineList> {
                         },
                         child: Text(
                           'ยกเลิก',
-                          style: TextStyle(color: MyStyle().red400),
+                          style: TextStyle(
+                              color: MyStyle().red400,
+                              fontFamily: MyStyle().kanit.toString()),
                         )),
                     FlatButton(
                         onPressed: () {
@@ -164,7 +187,10 @@ class _MachineListState extends State<MachineList> {
                         },
                         child: Text(
                           'ใช่',
-                          style: TextStyle(color: MyStyle().red400),
+                          style: TextStyle(
+                            color: MyStyle().red400,
+                            fontFamily: MyStyle().kanit.toString(),
+                          ),
                         )),
                   ],
                 )
