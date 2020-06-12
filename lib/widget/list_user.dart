@@ -7,6 +7,9 @@ import 'package:leopardmachine/model/user_model.dart';
 import 'package:leopardmachine/utility/my_constant.dart';
 import 'package:leopardmachine/utility/my_style.dart';
 import 'package:leopardmachine/screen/add_user.dart';
+import 'package:leopardmachine/screen/edit_user.dart';
+import 'package:leopardmachine/utility/normal_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UserList extends StatefulWidget {
   @override
@@ -27,6 +30,7 @@ class _UserListState extends State<UserList> {
 
   List<UserModel> _users = List<UserModel>();
   List<UserModel> _usersForDisplay = List<UserModel>();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   Future<List<UserModel>> readDataUserListView() async {
     String url =
@@ -59,6 +63,7 @@ class _UserListState extends State<UserList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text(
           'รายชื่อพนักงานในระบบ',
@@ -146,81 +151,193 @@ class _UserListState extends State<UserList> {
   }
 
   _listUserItems(index) {
-    return Card(
-      borderOnForeground: true,
-      child: ListTile(
-        leading: CircleAvatar(
-          radius: 28.0,
-          backgroundColor: MyStyle().red400,
-        ),
-        title: Text(
-            _usersForDisplay[index].firstName.toString() +
-                ' ' +
-                _usersForDisplay[index].lastName.toString(),
-            style: GoogleFonts.kanit(
-              textStyle: TextStyle(
-                color: MyStyle().red400,
-                fontSize: 16.0,
-                fontWeight: FontWeight.bold,
+    return Dismissible(
+      key: UniqueKey(),
+      confirmDismiss: (DismissDirection direction) async {
+        return showDialogYesNoQuestion(context, index);
+      },
+      background: refreshBg(),
+      child: Card(
+        borderOnForeground: true,
+        child: ListTile(
+          leading: CircleAvatar(
+            radius: 28.0,
+            backgroundColor: MyStyle().red400,
+          ),
+          title: Text(
+              _usersForDisplay[index].firstName.toString() +
+                  ' ' +
+                  _usersForDisplay[index].lastName.toString(),
+              style: GoogleFonts.kanit(
+                textStyle: TextStyle(
+                  color: MyStyle().red400,
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              )),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                'ประเภทพนักงาน : ' +
+                    convertUserType(
+                        _usersForDisplay[index].userType.toString()),
+                style: MyStyle().kanit,
               ),
-            )),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              'ประเภทพนักงาน : ' +
-                  convertUserType(_usersForDisplay[index].userType.toString()),
-              style: MyStyle().kanit,
-            ),
-          ],
+            ],
+          ),
+          onTap: () {
+            print('Tab');
+            _navigateToEditPage(context, index);
+          },
         ),
-        onTap: () {
-          print('Tab');
-        },
-        onLongPress: () {
-          showDialogYesNoQuestion(context, index);
-        },
       ),
     );
   }
 
-  showDialogYesNoQuestion(context, index) {
-    return showDialog(
-        context: context,
-        builder: (context) => SimpleDialog(
-              title: Text('คูณต้องการลบเครื่องจักรใช่หรือไม่?'),
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    FlatButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: Text(
-                          'ยกเลิก',
-                          style: TextStyle(color: MyStyle().red400),
-                        )),
-                    FlatButton(
-                        onPressed: () {
-                          //deleteDataMachineListView();
-                          Navigator.pop(context);
-                        },
-                        child: Text(
-                          'ใช่',
-                          style: TextStyle(color: MyStyle().red400),
-                        )),
-                  ],
-                )
-              ],
-            ));
+  showSnackBar(usernameSnack) {
+    final snackBar = SnackBar(
+      duration: Duration(seconds: 5),
+      content: Text(
+        'ผู้ใช้ $usernameSnack ได้ถูกลบแล้ว',
+        style: GoogleFonts.kanit(
+          textStyle: TextStyle(
+            color: Colors.blue.shade300,
+          ),
+        ),
+      ),
+    );
+
+    _scaffoldKey.currentState.showSnackBar(snackBar);
   }
 
-  void routeToAddUser() {
-    print('routeToAddUser');
-    MaterialPageRoute materialPageRoute = MaterialPageRoute(
-      builder: (context) => AddUser(),
+  Widget refreshBg() {
+    return Container(
+      alignment: Alignment.centerRight,
+      padding: EdgeInsets.only(right: 20.0),
+      color: MyStyle().red400,
+      child: const Icon(
+        Icons.delete,
+        color: Colors.white,
+      ),
     );
-    Navigator.push(context, materialPageRoute);
+  }
+
+  _navigateToEditPage(BuildContext context, index) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditUser(),
+        settings: RouteSettings(arguments: _usersForDisplay[index]),
+      ),
+    );
+
+    if (result != null) {
+      final snackBar = SnackBar(
+        duration: Duration(seconds: 5),
+        content: Text(
+          '$result',
+          style: GoogleFonts.kanit(
+            textStyle: TextStyle(
+              color: Colors.blue.shade300,
+            ),
+          ),
+        ),
+      );
+
+      _scaffoldKey.currentState.showSnackBar(snackBar);
+
+      setState(() {
+        _refresh();
+      });
+    }
+  }
+
+  Future<bool> showDialogYesNoQuestion(context, index) {
+    return showDialog(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: Text('คูณต้องการลบเครื่องจักรใช่หรือไม่?'),
+        children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              FlatButton(
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+                child: Text(
+                  'ยกเลิก',
+                  style: TextStyle(color: MyStyle().red400),
+                ),
+              ),
+              FlatButton(
+                onPressed: () {
+                  deleteDataUserListView(index);
+                  Navigator.of(context).pop(true);
+                },
+                child: Text(
+                  'ใช่',
+                  style: TextStyle(color: MyStyle().red400),
+                ),
+              ),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+  Future<Null> deleteDataUserListView(index) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    String userIDLogin = preferences.getString('userID');
+    DateTime datenow = DateTime.now();
+    String userID = _usersForDisplay[index].userid;
+
+    String url =
+        '${MyConstant().domain}/LeopardMachine/deleteUserByUserID.php?isAdd=true&userid=$userID&UpdateBy=$userIDLogin&UpdateDate=$datenow';
+
+    print('url = $url');
+    try {
+      Response response = await Dio().get(url);
+      if (response.toString() == 'true') {
+        setState(() {
+          _refresh();
+        });
+        String usernameSnack = _usersForDisplay[index].userName;
+        showSnackBar(usernameSnack);
+      } else {
+        normalDialog(context, 'ไม่สามารถลบข้อมูลได้ กรุณาติดต่อเจ้าหน้าที่');
+      }
+    } catch (e) {}
+  }
+
+  routeToAddUser() async {
+    print('routeToAddUser');
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddUser(),
+      ),
+    );
+
+    if (result != null) {
+      final snackBar = SnackBar(
+        duration: Duration(seconds: 5),
+        content: Text(
+          '$result',
+          style: GoogleFonts.kanit(
+            textStyle: TextStyle(
+              color: Colors.blue.shade300,
+            ),
+          ),
+        ),
+      );
+
+      _scaffoldKey.currentState.showSnackBar(snackBar);
+      setState(() {
+        _refresh();
+      });
+    }
   }
 }

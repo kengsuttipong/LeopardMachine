@@ -18,10 +18,40 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   String username, password;
 
+  Future<Null> checkAuthen() async {
+    String url =
+        '${MyConstant().domain}/LeopardMachine/getUserWhereUserMaster.php?isAdd=true&UserName=$username';
+
+    try {
+      Response response = await Dio().get(url);
+      print('res = $response');
+      var result = json.decode(response.data);
+      print('result = $result');
+      MyStyle().showProgress();
+      for (var map in result) {
+        UserModel usermodel = UserModel.fromJson(map);
+        if (password == usermodel.password) {
+          String userType = usermodel.userType;
+          print('userType = $userType');
+          if (userType == 'user_pharmacist' ||
+              userType == 'user_mechanic' ||
+              userType == 'user_staff') {
+            routeToService(MachineFixedInform(), usermodel);
+          } else {
+            normalDialog(context, 'กรุณาลองใหม่อีกครั้ง');
+          }
+        } else {
+          normalDialog(context, 'ไม่สำเร็จ! ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
+        }
+      }
+    } catch (e) {}
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
         title: Text(
           'เข้าสู่ระบบ',
           style: MyStyle().kanit,
@@ -116,40 +146,11 @@ class _HomeState extends State<Home> {
         ),
       );
 
-  Future<Null> checkAuthen() async {
-    String url =
-        '${MyConstant().domain}/LeopardMachine/getUserWhereUserMaster.php?isAdd=true&UserName=$username';
-
-    try {
-      Response response = await Dio().get(url);
-      print('res = $response');
-      var result = json.decode(response.data);
-      print('result = $result');
-
-      for (var map in result) {
-        UserModel usermodel = UserModel.fromJson(map);
-        if (password == usermodel.password) {
-          String userType = usermodel.userType;
-          print('userType = $userType');
-          if (userType == 'user_pharmacist') {
-            routeToService(MachineFixedInform(), usermodel);
-          } else if (userType == 'rdo_shop') {
-            //routeToService(MainShop(), usermodel);
-          } else if (userType == 'rdo_rider') {
-            //routeToService(MainRider(), usermodel);
-          } else {
-            normalDialog(context, 'กรุณาลองใหม่อีกครั้ง');
-          }
-        } else {
-          normalDialog(context, 'ไม่สำเร็จ! ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
-        }
-      }
-    } catch (e) {}
-  }
-
   Future<Null> routeToService(Widget myWidget, UserModel userModel) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    preferences.setString('userid', userModel.userid);
+    preferences.setString('userID', userModel.userid);
+    preferences.setString('userName', userModel.userName);
+    preferences.setString('password', userModel.password);
     preferences.setString('UserType', userModel.userType);
     preferences.setString('FirstName', userModel.firstName);
     preferences.setString('LastName', userModel.lastName);

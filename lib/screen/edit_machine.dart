@@ -3,28 +3,32 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
+import 'package:leopardmachine/model/machine_model.dart';
 import 'package:leopardmachine/utility/my_constant.dart';
 import 'package:leopardmachine/utility/my_style.dart';
-import 'package:intl/intl.dart';
 import 'package:leopardmachine/utility/normal_dialog.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class AddMachine extends StatefulWidget {
+class EditMachine extends StatefulWidget {
   @override
-  _AddMachineState createState() => _AddMachineState();
+  _EditMachineState createState() => _EditMachineState();
 }
 
-class _AddMachineState extends State<AddMachine> {
-  String machineCode, machineName, _datetime, imageUrl;
+class _EditMachineState extends State<EditMachine> {
+  MachineModel _machinesForDisplay;
+  String machineID, machineCode, machineName, _datetime, imageUrl;
   DateTime appointmentDate;
   File file;
 
   @override
   Widget build(BuildContext context) {
+    _machinesForDisplay = ModalRoute.of(context).settings.arguments;
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'เพิ่มเครื่องมือ/เครื่องจักร',
+          'แก้ไขเครื่องจักร',
           style: MyStyle().kanit,
         ),
       ),
@@ -40,7 +44,7 @@ class _AddMachineState extends State<AddMachine> {
             MyStyle().mySizeBox(),
             dateForm(),
             MyStyle().mySizeBox(),
-            saveButton()
+            saveButton(),
           ],
         ),
       ),
@@ -52,9 +56,12 @@ class _AddMachineState extends State<AddMachine> {
         children: <Widget>[
           Container(
             width: 250.0,
-            child: TextField(
+            child: TextFormField(
               textCapitalization: TextCapitalization.characters,
-              onChanged: (value) => machineCode = value.trim(),
+              onChanged: (value) {
+                machineCode = value;
+              },
+              initialValue: _machinesForDisplay.machineCode,
               decoration: InputDecoration(
                 labelStyle: GoogleFonts.kanit(
                   textStyle: TextStyle(color: MyStyle().red400),
@@ -80,8 +87,11 @@ class _AddMachineState extends State<AddMachine> {
         children: <Widget>[
           Container(
             width: 250.0,
-            child: TextField(
-              onChanged: (value) => machineName = value.trim(),
+            child: TextFormField(
+              onChanged: (value) {
+                machineName = value;
+              },
+              initialValue: _machinesForDisplay.machineName,
               decoration: InputDecoration(
                 labelStyle: GoogleFonts.kanit(
                   textStyle: TextStyle(color: MyStyle().red400),
@@ -116,9 +126,12 @@ class _AddMachineState extends State<AddMachine> {
             }),
         Container(
           width: 200.0,
-          child: file == null
+          child: _machinesForDisplay.imageUrl == null
               ? Image.asset('images/myimage.png')
-              : Image.file(file),
+              : file == null
+                  ? Image.network(
+                      '${MyConstant().domain}' + _machinesForDisplay.imageUrl)
+                  : Image.file(file),
         ),
         IconButton(
             icon: Icon(
@@ -132,11 +145,27 @@ class _AddMachineState extends State<AddMachine> {
     );
   }
 
+  Future<Null> chooseImage(ImageSource imageSource) async {
+    try {
+      final object = await ImagePicker().getImage(
+        source: imageSource,
+        maxHeight: 800.0,
+        maxWidth: 800.0,
+      );
+
+      setState(() {
+        file = File(object.path);
+      });
+    } catch (e) {}
+  }
+
   Widget dateForm() => Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Container(
-            child: Text(_datetime == null ? 'ยังไม่ได้เลือกวันที่' : _datetime),
+            child: Text(_datetime == null
+                ? _machinesForDisplay.appointmentDate
+                : _datetime),
           ),
           IconButton(
               icon: Icon(
@@ -147,7 +176,8 @@ class _AddMachineState extends State<AddMachine> {
                 showDatePicker(
                         context: context,
                         initialDate: appointmentDate == null
-                            ? DateTime.now()
+                            ? DateTime.parse(
+                                _machinesForDisplay.appointmentDate)
                             : appointmentDate,
                         firstDate: DateTime(2001),
                         lastDate: DateTime(2200))
@@ -168,15 +198,13 @@ class _AddMachineState extends State<AddMachine> {
         child: RaisedButton(
           color: MyStyle().red400,
           onPressed: () {
-            if (machineCode == null ||
-                machineCode.isEmpty ||
-                machineName == null ||
-                machineName.isEmpty) {
-              normalDialog(context, 'มีช่องว่าง กรุณากรอกข้อมูลให้ครบถ้วน');
-            } else if (file == null) {
+            if (machineCode == null &&
+                machineName == null &&
+                _datetime == null &&
+                file == null) {
+              normalDialog(context, 'ไม่มีการเปลี่ยนแปลงข้อมูล');
+            } else if (file == null && _machinesForDisplay.imageUrl == null) {
               normalDialog(context, 'กรุณาเพิ่มรูปเครื่องจักร');
-            } else if (_datetime == null || _datetime.isEmpty) {
-              normalDialog(context, 'กรุณาเพิ่มวันที่');
             } else {
               if (file != null) {
                 uploadImage();
@@ -185,7 +213,7 @@ class _AddMachineState extends State<AddMachine> {
             }
           },
           child: Text(
-            'เพิ่มเครื่องจักร',
+            'บันทึก',
             style: GoogleFonts.kanit(
               textStyle: TextStyle(color: Colors.white),
             ),
@@ -194,6 +222,8 @@ class _AddMachineState extends State<AddMachine> {
       );
 
   Future<Null> uploadImage() async {
+    machineCode =
+        machineCode == null ? _machinesForDisplay.machineCode : machineCode;
     String imageName = 'machine_$machineCode.jpg';
 
     String url = '${MyConstant().domain}/LeopardMachine/saveMachineImage.php';
@@ -211,13 +241,18 @@ class _AddMachineState extends State<AddMachine> {
   }
 
   Future<Null> checkDuplicateMachine() async {
+    print('machine code = ${_machinesForDisplay.machineCode}');
+    machineCode =
+        machineCode == null ? _machinesForDisplay.machineCode : machineCode;
     String url =
         '${MyConstant().domain}/LeopardMachine/getMachineWhereMachineCode.php?isAdd=true&MachineCode=$machineCode';
 
+    print('url = $url');
     try {
       Response response = await Dio().get(url);
-      if (response.toString() == 'null') {
-        insertUpdateMachine();
+      if (response.toString() == 'null' ||
+          _machinesForDisplay.machineCode == machineCode) {
+        updateMachine();
       } else {
         normalDialog(
             context, 'ไม่สามารถบันทึกได้ เนื่องจากมีชื่อผู้ใช้งานนี้แล้ว');
@@ -225,12 +260,25 @@ class _AddMachineState extends State<AddMachine> {
     } catch (e) {}
   }
 
-  Future<Null> insertUpdateMachine() async {
+  Future<Null> updateMachine() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    String userIDLogin = preferences.getString('userID');
+    DateTime datenow = DateTime.now();
+
+    machineID = _machinesForDisplay.machineID;
+    machineCode =
+        machineCode == null ? _machinesForDisplay.machineCode : machineCode;
+    machineName =
+        machineName == null ? _machinesForDisplay.machineName : machineName;
+    appointmentDate = appointmentDate == null
+        ? DateTime.parse(_machinesForDisplay.appointmentDate)
+        : appointmentDate;
+
     print('3 imageUrl = $imageUrl');
     String imageName = 'machine_$machineCode.jpg';
     imageUrl = '/LeopardMachine/MachineImages/$imageName';
     String url =
-        '${MyConstant().domain}/LeopardMachine/addMachine.php?isAdd=true&MachineCode=$machineCode&MachineName=$machineName&ImageUrl=$imageUrl&AppointmentDate=$appointmentDate';
+        '${MyConstant().domain}/LeopardMachine/updateMachineByMachineID.php?isAdd=true&MachineID=$machineID&MachineCode=$machineCode&MachineName=$machineName&AppointmentDate=$appointmentDate&ImageUrl=$imageUrl&UpdateBy=$userIDLogin&UpdateDate=$datenow';
 
     try {
       print(url);
@@ -238,25 +286,11 @@ class _AddMachineState extends State<AddMachine> {
       print('4 XXX');
       print('5 res = $response');
 
-      if (response.toString() == 'true') {
-        Navigator.of(context).pop('เครื่องจักร ' + machineCode + ' ได้ทำการบันทึกแล้ว');
+      if (response.toString() == 'true') {       
+        Navigator.of(context).pop('เครืองจักร ' + machineCode + ' ได้ทำการแก้ไขแล้ว');
       } else {
         normalDialog(context, 'ไม่สามารถเพิ่มได้ กรุณาติดต่อเจ้าหน้าที่');
       }
-    } catch (e) {}
-  }
-
-  Future<Null> chooseImage(ImageSource imageSource) async {
-    try {
-      final object = await ImagePicker().getImage(
-        source: imageSource,
-        maxHeight: 800.0,
-        maxWidth: 800.0,
-      );
-
-      setState(() {
-        file = File(object.path);
-      });
     } catch (e) {}
   }
 }

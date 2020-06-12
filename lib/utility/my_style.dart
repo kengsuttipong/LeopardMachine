@@ -7,6 +7,10 @@ class MyStyle {
   Color green400 = Colors.green.shade400;
   var kanit = GoogleFonts.kanit();
 
+  Widget showProgress(){
+    return Center(child: CircularProgressIndicator(),);
+  }
+
   SizedBox mySizeBox() => SizedBox(
         width: 8.0,
         height: 16.0,

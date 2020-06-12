@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:leopardmachine/screen/home.dart';
+import 'package:leopardmachine/utility/check_authen.dart';
 
 void main() {
   runApp(MyApp());
@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(primarySwatch: Colors.red),
       title: 'Leopard Machine',
-      home: Home(),
+      home: CheckAuthen(),
     );
   }
 }
