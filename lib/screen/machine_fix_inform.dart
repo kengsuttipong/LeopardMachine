@@ -25,6 +25,7 @@ class _MachineFixedInformState extends State<MachineFixedInform> {
   Widget currentWidget = MachineFixedInform();
   String tabType, firstName, lastName;
   bool isrefresh = false;
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   final List<Tab> myTabs = <Tab>[
     Tab(text: 'พร้อมใช้งาน'),
@@ -172,9 +173,11 @@ class _MachineFixedInformState extends State<MachineFixedInform> {
   Future<List<MachineModel>> readDataMachineListView(
       machineMaintenanceStatus) async {
     print('read me');
+
     if (machineMaintenanceStatus == null) {
       machineMaintenanceStatus = 'availableMachine';
     }
+
     String url =
         '${MyConstant().domain}/LeopardMachine/getMaintenanceListView.php?isAdd=true&machineMaintenanceStatus=$machineMaintenanceStatus';
     print('url = $url');
@@ -205,17 +208,18 @@ class _MachineFixedInformState extends State<MachineFixedInform> {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
+        key: _scaffoldKey,
         drawer: showDrawer(),
         appBar: AppBar(
           title: Text(
             'แจ้งซ่อมเครื่องจักร',
             style: MyStyle().kanit,
           ),
-          bottom: TabBar(            
+          bottom: TabBar(
             indicatorColor: Colors.yellow,
             indicatorWeight: 7.0,
             labelStyle: MyStyle().kanit,
-            tabs: myTabs,                        
+            tabs: myTabs,
             onTap: (index) {
               if (index == 0) {
                 tabType = 'availableMachine';
@@ -224,15 +228,13 @@ class _MachineFixedInformState extends State<MachineFixedInform> {
               } else if (index == 2) {
                 tabType = 'maintenanceSuccessed';
               }
-
-              MyStyle().showProgress();
-              _refresh(tabType);
+              setState(() {
+                _refresh(tabType);
+              });
             },
           ),
         ),
-        body: TabBarView(
-          physics: NeverScrollableScrollPhysics(),
-          children: [
+        body: TabBarView(physics: NeverScrollableScrollPhysics(), children: [
           _availableMachine(),
           _holdingMaintenance(),
           _maintenanceSuccessed(),
@@ -242,136 +244,174 @@ class _MachineFixedInformState extends State<MachineFixedInform> {
   }
 
   _availableMachine() {
-    return RefreshIndicator(
+    return new RefreshIndicator(
       onRefresh: () async {
         await _refresh(tabType);
       },
       child: ListView.builder(
         physics: NeverScrollableScrollPhysics(),
-        itemCount: _machinesForDisplay.length == 0
-            ? 0
-            : _machinesForDisplay.length + 1,
+        itemCount: _machinesForDisplay.length + 1,
         itemBuilder: (context, index) {
           print('1');
-          if (_machinesForDisplay.length != 0) {
-            return index == 0
-                ? _searchBar()
-                : _listMachineItems(
-                    context, index - 1, tabType, MyStyle().green400);
-          } else {
-            return null;
-          }
+          return index == 0
+              ? _searchBar()
+              : _listMachineItems(
+                  index == 0 ? 0 : index - 1, tabType, MyStyle().green400);
         },
       ),
     );
   }
 
   _holdingMaintenance() {
-    return RefreshIndicator(
+    return new RefreshIndicator(
       onRefresh: () async {
         await _refresh(tabType);
       },
       child: ListView.builder(
         physics: NeverScrollableScrollPhysics(),
-        itemCount: _machinesForDisplay.length == 0
-            ? 0
-            : _machinesForDisplay.length + 1,
+        itemCount: _machinesForDisplay.length + 1,
         itemBuilder: (context, index) {
           print('2');
-          if (_machinesForDisplay.length != 0) {
-            return index == 0
-                ? _searchBar()
-                : _listMachineItems(
-                    context, index - 1, tabType, MyStyle().red400);
-          } else {
-            return null;
-          }
+          return index == 0
+              ? _searchBar()
+              : _listMachineItems(
+                  index == 0 ? 0 : index - 1, tabType, MyStyle().red400);
         },
       ),
     );
   }
 
   _maintenanceSuccessed() {
-    return RefreshIndicator(
+    return new RefreshIndicator(
       onRefresh: () async {
         await _refresh(tabType);
       },
       child: ListView.builder(
         physics: NeverScrollableScrollPhysics(),
-        itemCount: _machinesForDisplay.length == 0
-            ? 0
-            : _machinesForDisplay.length + 1,
+        itemCount: _machinesForDisplay.length + 1,
         itemBuilder: (context, index) {
           print('3');
-          if (_machinesForDisplay.length != 0) {
           return index == 0
               ? _searchBar()
               : _listMachineItems(
-                  context, index - 1, tabType, MyStyle().yellow800);
-          } else {
-            return null;
-          }
+                  index == 0 ? 0 : index - 1, tabType, MyStyle().yellow800);
         },
       ),
     );
   }
 
-  _listMachineItems(context, index, tabType, typeColor) {
-    return Card(
-      borderOnForeground: true,
-      child: ListTile(
-        leading: CircleAvatar(
-          radius: 28.0,
-          backgroundColor: MyStyle().red400,
-          backgroundImage: NetworkImage(_machinesForDisplay[index].imageUrl ==
-                  null
-              ? '${MyConstant().domain}' +
-                  '/' +
-                  _machinesForDisplay[index].imageUrl
-              : '${MyConstant().domain}' + _machinesForDisplay[index].imageUrl),
-        ),
-        title: Text(
-          _machinesForDisplay[index].machineCode,
-          style: GoogleFonts.kanit(
-            textStyle: TextStyle(
-              color: typeColor,
-              fontSize: 16.0,
-              fontWeight: FontWeight.bold,
+  _listMachineItems(i, tabType, typeColor) {
+    try {
+      return Dismissible(
+        key: UniqueKey(),
+        confirmDismiss: (DismissDirection direction) async {
+          if (_machinesForDisplay[i].machineMaintenanceStatus ==
+              'availableMachine') {
+            return null;
+          } else {
+            return showDialogDeleteQuestion(context, i);
+          }
+        },
+        background: refreshBg(),
+        child: Card(
+          borderOnForeground: true,
+          child: ListTile(
+            leading: CircleAvatar(
+              radius: 28.0,
+              backgroundColor: MyStyle().red400,
+              backgroundImage: NetworkImage(_machinesForDisplay[i].imageUrl ==
+                      null
+                  ? '${MyConstant().domain}' +
+                      '/' +
+                      _machinesForDisplay[i].imageUrl
+                  : '${MyConstant().domain}' + _machinesForDisplay[i].imageUrl),
             ),
+            title: Text(
+              _machinesForDisplay[i].machineCode,
+              style: GoogleFonts.kanit(
+                textStyle: TextStyle(
+                  color: typeColor,
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  'ชื่อเครื่อง : ' + _machinesForDisplay[i].machineName,
+                  style: MyStyle().kanit,
+                ),
+                Text(
+                  'วันซ่อมบำรุงครั้งต่อไป : ' +
+                      _machinesForDisplay[i].appointmentDate,
+                  style: MyStyle().kanit,
+                ),
+              ],
+            ),
+            onTap: () async {
+              print(
+                  '1 status = ${_machinesForDisplay[i].machineMaintenanceStatus}');
+              if (_machinesForDisplay[i].machineMaintenanceStatus ==
+                      'holdingMaintenance' ||
+                  _machinesForDisplay[i].machineMaintenanceStatus ==
+                      'maintenanceSuccessed') {
+                String status = _machinesForDisplay[i].machineMaintenanceStatus;
+                print(' 1 machineID = ${_machinesForDisplay[i].machineID}');
+
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => MachineFixDetail(),
+                      settings:
+                          RouteSettings(arguments: _machinesForDisplay[i])),
+                );
+
+                if (result != null) {
+                  final snackBar = SnackBar(
+                    content: Text(
+                      '$result',
+                      style: GoogleFonts.kanit(
+                        textStyle: TextStyle(
+                          color: Colors.blue.shade300,
+                        ),
+                      ),
+                    ),
+                  );
+
+                  _scaffoldKey.currentState.showSnackBar(snackBar);
+                  setState(() {
+                    _refresh(status);
+                  });
+                }
+              }
+            },
+            onLongPress: () {
+              if (_machinesForDisplay[i].machineMaintenanceStatus ==
+                  'availableMachine') {
+                showDialogYesNoQuestion(
+                  'ต้องการแจ้งซ่อมเครื่องจักรเครื่องนี้ ใช่หรือไม่?',
+                  context,
+                  i,
+                  'holdingMaintenance',
+                );
+              }
+            },
           ),
         ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              'ชื่อเครื่อง : ' + _machinesForDisplay[index].machineName,
-              style: MyStyle().kanit,
-            ),
-            Text(
-              'วันซ่อมบำรุงครั้งต่อไป : ' +
-                  _machinesForDisplay[index].appointmentDate,
-              style: MyStyle().kanit,
-            ),
-          ],
-        ),
-        onTap: () {
-          if (tabType == 'holdingMaintenance') {
-            MaterialPageRoute route = MaterialPageRoute(
-              builder: (value) => MachineFixDetail(),
-            );
-            Navigator.of(context).push(route);
-          }
-        },
-        onLongPress: () {
-          if (tabType == 'availableMachine') {
-            showDialogYesNoQuestion(
-              'ต้องการแจ้งซ่อมเครื่องจักรเครื่องนี้ ใช่หรือไม่?',
-              context,
-              index,
-              'holdingMaintenance',
-            );
-          }
-        },
+      );
+    } catch (e) {}
+  }
+
+  Widget refreshBg() {
+    return Container(
+      alignment: Alignment.centerRight,
+      padding: EdgeInsets.only(right: 20.0),
+      color: MyStyle().red400,
+      child: const Icon(
+        Icons.delete,
+        color: Colors.white,
       ),
     );
   }
@@ -405,33 +445,29 @@ class _MachineFixedInformState extends State<MachineFixedInform> {
     );
   }
 
-  Future<Null> insertInformFixMachine(machineID, maintenanceStatus) async {
+  Future<Null> insertInformFixMachine(
+      MachineModel machineModel, maintenanceStatus) async {
     print('insertInformFixMachine');
     SharedPreferences preferences = await SharedPreferences.getInstance();
     String userID = preferences.getString('userID');
     DateTime applyDate = DateTime.now();
-    var result;
+    String machineID = machineModel.machineID;
+    String message =
+        'เครื่องจักร ${machineModel.machineCode} ได้ทำการแจ้งซ่อมเรียบร้อยแล้ว';
 
     String url =
-        '${MyConstant().domain}/LeopardMachine/insertInformFixMachine.php?isAdd=true&UserID=$userID&MachineID=$machineID&MaintenanceStatus=$maintenanceStatus&ApplyDate=$applyDate';
+        '${MyConstant().domain}/LeopardMachine/editMachineStatus.php?isAdd=true&UserID=$userID&MachineID=$machineID&MaintenanceStatus=$maintenanceStatus&ApplyDate=$applyDate';
     await Dio().get(url).then((value) {
-      print('value = $value');
-      result = json.decode(value.data);
-    });
-    if (result) {
-      url =
-          '${MyConstant().domain}/LeopardMachine/editMachineStatus.php?isAdd=true&UserID=$userID&MachineID=$machineID&MaintenanceStatus=$maintenanceStatus&ApplyDate=$applyDate';
-      await Dio().get(url).then((value) {
-        print('value = $value, url = $url');
-        //result = json.decode(value.data);
+      setState(() {
+        _refresh('availableMachine');
       });
-      Navigator.pop(context);
-    } else {
-      normalDialog(context, 'ไม่สามารถแจ้งซ่อมได้ กรุณาแจ้งผู้ดูแลระบบ');
-    }
+      showSnackBar(message);
+      print('value = $value, url = $url');
+    });
+    Navigator.pop(context);
   }
 
-  showDialogYesNoQuestion(message, context, index, maintenanceStatus) {
+  showDialogYesNoQuestion(message, context, i, maintenanceStatus) {
     return showDialog(
       context: context,
       builder: (context) => SimpleDialog(
@@ -455,9 +491,9 @@ class _MachineFixedInformState extends State<MachineFixedInform> {
                   )),
               FlatButton(
                 onPressed: () {
-                  print('index = $index');
+                  print('index = $i');
                   insertInformFixMachine(
-                      _machinesForDisplay[index].machineID, maintenanceStatus);
+                      _machinesForDisplay[i], maintenanceStatus);
                 },
                 child: Text(
                   'ใช่',
@@ -471,5 +507,100 @@ class _MachineFixedInformState extends State<MachineFixedInform> {
         ],
       ),
     );
+  }
+
+  Future<bool> showDialogDeleteQuestion(context, index) {
+    return showDialog(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: Text(
+          'คูณต้องการยกเลิกการแจ้งซ่อมครื่องจักรนี้ใช่หรือไม่?',
+          style: MyStyle().kanit,
+        ),
+        children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              FlatButton(
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+                child: Text(
+                  'ยกเลิก',
+                  style: GoogleFonts.kanit(
+                    textStyle: TextStyle(
+                      color: MyStyle().red400,
+                    ),
+                  ),
+                ),
+              ),
+              FlatButton(
+                onPressed: () {
+                  rollbackMachineListView(index);
+                  Navigator.of(context).pop(true);
+                },
+                child: Text(
+                  'ใช่',
+                  style: GoogleFonts.kanit(
+                    textStyle: TextStyle(
+                      color: MyStyle().red400,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+  Future<Null> rollbackMachineListView(index) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    String userIDLogin = preferences.getString('userID');
+    DateTime datenow = DateTime.now();
+    String machineID = _machinesForDisplay[index].machineID;
+    String rollbackStatus = '';
+
+    if (_machinesForDisplay[index].machineMaintenanceStatus ==
+        'maintenanceSuccessed') {
+      rollbackStatus = 'holdingMaintenance';
+    } else if (_machinesForDisplay[index].machineMaintenanceStatus ==
+        'holdingMaintenance') {
+      rollbackStatus = 'availableMachine';
+    }
+
+    String url =
+        '${MyConstant().domain}/LeopardMachine/rollbackMachineStatus.php?isAdd=true&machineid=$machineID&rollbackStatus=$rollbackStatus&UpdateBy=$userIDLogin&UpdateDate=$datenow';
+
+    print('url = $url');
+    try {
+      Response response = await Dio().get(url);
+      if (response.toString() == 'true') {
+        setState(() {
+          _refresh(_machinesForDisplay[index].machineMaintenanceStatus);
+        });
+        String machineCodeSnack = _machinesForDisplay[index].machineCode;
+        String message =
+            'เครื่องจักร $machineCodeSnack ได้ยกเลิกการแจ้งซ่อมแล้ว';
+        showSnackBar(message);
+      } else {
+        normalDialog(context, 'ไม่สามารถลบข้อมูลได้ กรุณาติดต่อเจ้าหน้าที่');
+      }
+    } catch (e) {}
+  }
+
+  showSnackBar(message) {
+    final snackBar = SnackBar(
+      content: Text(
+        message,
+        style: GoogleFonts.kanit(
+          textStyle: TextStyle(
+            color: Colors.blue.shade300,
+          ),
+        ),
+      ),
+    );
+    _scaffoldKey.currentState.showSnackBar(snackBar);
   }
 }

@@ -197,7 +197,6 @@ class _UserListState extends State<UserList> {
 
   showSnackBar(usernameSnack) {
     final snackBar = SnackBar(
-      duration: Duration(seconds: 5),
       content: Text(
         'ผู้ใช้ $usernameSnack ได้ถูกลบแล้ว',
         style: GoogleFonts.kanit(
@@ -234,7 +233,6 @@ class _UserListState extends State<UserList> {
 
     if (result != null) {
       final snackBar = SnackBar(
-        duration: Duration(seconds: 5),
         content: Text(
           '$result',
           style: GoogleFonts.kanit(
@@ -323,7 +321,6 @@ class _UserListState extends State<UserList> {
 
     if (result != null) {
       final snackBar = SnackBar(
-        duration: Duration(seconds: 5),
         content: Text(
           '$result',
           style: GoogleFonts.kanit(

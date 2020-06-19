@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +16,7 @@ class AddMachine extends StatefulWidget {
 }
 
 class _AddMachineState extends State<AddMachine> {
-  String machineCode, machineName, _datetime, imageUrl;
+  String machineCode, machineName, _datetime, imageUrl, imageName;
   DateTime appointmentDate;
   File file;
 
@@ -194,7 +195,10 @@ class _AddMachineState extends State<AddMachine> {
       );
 
   Future<Null> uploadImage() async {
-    String imageName = 'machine_$machineCode.jpg';
+    Random random = Random();
+    int i = random.nextInt(1000000);
+
+    imageName = 'machine_${machineCode}_$i.jpg';
 
     String url = '${MyConstant().domain}/LeopardMachine/saveMachineImage.php';
 
@@ -227,7 +231,7 @@ class _AddMachineState extends State<AddMachine> {
 
   Future<Null> insertUpdateMachine() async {
     print('3 imageUrl = $imageUrl');
-    String imageName = 'machine_$machineCode.jpg';
+
     imageUrl = '/LeopardMachine/MachineImages/$imageName';
     String url =
         '${MyConstant().domain}/LeopardMachine/addMachine.php?isAdd=true&MachineCode=$machineCode&MachineName=$machineName&ImageUrl=$imageUrl&AppointmentDate=$appointmentDate';
@@ -239,7 +243,8 @@ class _AddMachineState extends State<AddMachine> {
       print('5 res = $response');
 
       if (response.toString() == 'true') {
-        Navigator.of(context).pop('เครื่องจักร ' + machineCode + ' ได้ทำการบันทึกแล้ว');
+        Navigator.of(context)
+            .pop('เครื่องจักร ' + machineCode + ' ได้ทำการบันทึกแล้ว');
       } else {
         normalDialog(context, 'ไม่สามารถเพิ่มได้ กรุณาติดต่อเจ้าหน้าที่');
       }

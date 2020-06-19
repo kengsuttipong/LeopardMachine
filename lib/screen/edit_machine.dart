@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +19,7 @@ class EditMachine extends StatefulWidget {
 
 class _EditMachineState extends State<EditMachine> {
   MachineModel _machinesForDisplay;
-  String machineID, machineCode, machineName, _datetime, imageUrl;
+  String machineID, machineCode, machineName, _datetime, imageUrl, imageName;
   DateTime appointmentDate;
   File file;
 
@@ -224,7 +225,9 @@ class _EditMachineState extends State<EditMachine> {
   Future<Null> uploadImage() async {
     machineCode =
         machineCode == null ? _machinesForDisplay.machineCode : machineCode;
-    String imageName = 'machine_$machineCode.jpg';
+    Random random = Random();
+    int i = random.nextInt(1000000);
+    imageName = 'machine_${machineCode}_$i.jpg';
 
     String url = '${MyConstant().domain}/LeopardMachine/saveMachineImage.php';
 
@@ -274,9 +277,9 @@ class _EditMachineState extends State<EditMachine> {
         ? DateTime.parse(_machinesForDisplay.appointmentDate)
         : appointmentDate;
 
-    print('3 imageUrl = $imageUrl');
-    String imageName = 'machine_$machineCode.jpg';
     imageUrl = '/LeopardMachine/MachineImages/$imageName';
+    print('3 imageUrl = $imageUrl');
+
     String url =
         '${MyConstant().domain}/LeopardMachine/updateMachineByMachineID.php?isAdd=true&MachineID=$machineID&MachineCode=$machineCode&MachineName=$machineName&AppointmentDate=$appointmentDate&ImageUrl=$imageUrl&UpdateBy=$userIDLogin&UpdateDate=$datenow';
 
@@ -286,8 +289,9 @@ class _EditMachineState extends State<EditMachine> {
       print('4 XXX');
       print('5 res = $response');
 
-      if (response.toString() == 'true') {       
-        Navigator.of(context).pop('เครืองจักร ' + machineCode + ' ได้ทำการแก้ไขแล้ว');
+      if (response.toString() == 'true') {
+        Navigator.of(context)
+            .pop('เครืองจักร ' + machineCode + ' ได้ทำการแก้ไขแล้ว');
       } else {
         normalDialog(context, 'ไม่สามารถเพิ่มได้ กรุณาติดต่อเจ้าหน้าที่');
       }

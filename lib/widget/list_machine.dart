@@ -192,7 +192,6 @@ class _MachineListState extends State<MachineList> {
 
     if (result != null) {
       final snackBar = SnackBar(
-        duration: Duration(seconds: 5),
         content: Text(
           '$result',
           style: GoogleFonts.kanit(
@@ -282,7 +281,6 @@ class _MachineListState extends State<MachineList> {
 
   showSnackBar(machineCodeSnack) {
     final snackBar = SnackBar(
-      duration: Duration(seconds: 5),
       content: Text(
         'เครื่องจักร $machineCodeSnack ได้ถูกลบแล้ว',
         style: GoogleFonts.kanit(
@@ -329,7 +327,6 @@ class _MachineListState extends State<MachineList> {
 
     if (result != null) {
       final snackBar = SnackBar(
-        duration: Duration(seconds: 5),
         content: Text(
           '$result',
           style: GoogleFonts.kanit(
