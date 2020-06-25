@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:leopardmachine/utility/add_eventlog.dart';
 import 'package:leopardmachine/utility/my_constant.dart';
 import 'package:leopardmachine/utility/my_style.dart';
 import 'package:intl/intl.dart';
@@ -222,6 +223,7 @@ class _AddMachineState extends State<AddMachine> {
       Response response = await Dio().get(url);
       if (response.toString() == 'null') {
         insertUpdateMachine();
+        AddEventLog().addEventLog();
       } else {
         normalDialog(
             context, 'ไม่สามารถบันทึกได้ เนื่องจากมีชื่อผู้ใช้งานนี้แล้ว');

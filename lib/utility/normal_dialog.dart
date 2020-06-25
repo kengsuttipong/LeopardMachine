@@ -15,13 +15,16 @@ Future<void> normalDialog(BuildContext context, String message) async {
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
             FlatButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('ตกลง',
-                    style: GoogleFonts.kanit(
-                      textStyle: TextStyle(
-                        color: Colors.red,
-                      ),
-                    ))),
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'ตกลง',
+                style: GoogleFonts.kanit(
+                  textStyle: TextStyle(
+                    color: Colors.red,
+                  ),
+                ),
+              ),
+            ),
           ],
         )
       ],

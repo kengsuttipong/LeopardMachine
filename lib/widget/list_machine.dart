@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:leopardmachine/model/machine_model.dart';
+import 'package:leopardmachine/screen/machine_eventlog_view.dart';
 import 'package:leopardmachine/utility/my_constant.dart';
 import 'package:leopardmachine/utility/my_style.dart';
 import 'package:leopardmachine/screen/add_machine.dart';
@@ -31,6 +32,7 @@ class _MachineListState extends State<MachineList> {
   List<MachineModel> _machines = List<MachineModel>();
   List<MachineModel> _machinesForDisplay = List<MachineModel>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  int indexOfEvent;
 
   Future<List<MachineModel>> readDataMachineListView() async {
     String url =
@@ -154,16 +156,45 @@ class _MachineListState extends State<MachineList> {
                 style: MyStyle().kanit,
               ),
               Text(
-                'วันซ่อมบำรุงครั้งต่อไป : ' +
+                'วันที่ซ่อมบำรุง : ' +
                     _machinesForDisplay[index].appointmentDate,
                 style: MyStyle().kanit,
+              ),
+            ],
+          ),
+          trailing: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              Container(
+                child: PopupMenuButton(
+                  onSelected: (value) {
+                    switch (value) {
+                      case 'ดูประวัติเครื่องจักร':                       
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => MachineEventLogView(machinesForDisplay: _machinesForDisplay[index]),                           
+                          ),
+                        );
+                        break;
+                    }
+                  },
+                  itemBuilder: (BuildContext context) {
+                    return {'ดูประวัติเครื่องจักร'}.map((String choice) {
+                      return PopupMenuItem<String>(
+                        value: choice,
+                        child: Text(choice),
+                      );
+                    }).toList();
+                  },
+                ),
               ),
             ],
           ),
           onTap: () {
             print('Tab');
             _navigateToEditPage(context, index);
-          },       
+          },
         ),
       ),
     );

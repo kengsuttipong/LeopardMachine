@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:leopardmachine/model/machine_model.dart';
+import 'package:leopardmachine/screen/machine_maintenance_inform.dart';
 import 'package:leopardmachine/utility/my_constant.dart';
 import 'package:leopardmachine/utility/my_style.dart';
 import 'package:leopardmachine/utility/normal_dialog.dart';
@@ -23,7 +24,7 @@ class _MachineFixedInformState extends State<MachineFixedInform> {
   List<MachineModel> _machines = List<MachineModel>();
   List<MachineModel> _machinesForDisplay = List<MachineModel>();
   Widget currentWidget = MachineFixedInform();
-  String tabType, firstName, lastName;
+  String tabType, firstName, lastName, userlogin;
   bool isrefresh = false;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -58,8 +59,9 @@ class _MachineFixedInformState extends State<MachineFixedInform> {
           children: <Widget>[
             showHeadDrawer(),
             mainMenu(),
-            userMenu(),
+            yearlyMaintenanceMenu(),
             machineMenu(),
+            userMenu(),
             signOutMenu(),
           ],
         ),
@@ -79,8 +81,22 @@ class _MachineFixedInformState extends State<MachineFixedInform> {
         },
       );
 
-  ListTile machineMenu() => ListTile(
+  ListTile yearlyMaintenanceMenu() => ListTile(
         leading: Icon(Icons.build),
+        title: Text(
+          'บำรุงรักษาเครื่องจักร',
+          style: MyStyle().kanit,
+        ),
+        onTap: () {
+          MaterialPageRoute route = MaterialPageRoute(
+            builder: (value) => MaintenanceInform(),
+          );
+          Navigator.of(context).push(route);
+        },
+      );
+
+  ListTile machineMenu() => ListTile(
+        leading: Icon(Icons.dvr),
         title: Text(
           'ดูรายชื่อเครื่องจักร',
           style: MyStyle().kanit,
@@ -160,13 +176,23 @@ class _MachineFixedInformState extends State<MachineFixedInform> {
 
   UserAccountsDrawerHeader showHeadDrawer() {
     return UserAccountsDrawerHeader(
+        decoration: MyStyle().myBoxDecoration('maintenance.png'),
         accountName: Text(
           '$firstName $lastName',
-          style: TextStyle(color: MyStyle().red400),
+          style: GoogleFonts.kanit(
+              textStyle: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          )),
         ),
         accountEmail: Text(
           'กำลังใช้งาน',
-          style: TextStyle(color: MyStyle().red400),
+          style: GoogleFonts.kanit(
+            textStyle: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ));
   }
 
@@ -514,7 +540,7 @@ class _MachineFixedInformState extends State<MachineFixedInform> {
       context: context,
       builder: (context) => SimpleDialog(
         title: Text(
-          'คูณต้องการยกเลิกการแจ้งซ่อมครื่องจักรนี้ใช่หรือไม่?',
+          'คูณต้องการยกเลิกการแจ้งซ่อมเครื่องจักรนี้ใช่หรือไม่?',
           style: MyStyle().kanit,
         ),
         children: <Widget>[

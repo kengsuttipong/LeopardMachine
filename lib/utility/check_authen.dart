@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:leopardmachine/screen/home.dart';
 import 'package:leopardmachine/screen/machine_fix_inform.dart';

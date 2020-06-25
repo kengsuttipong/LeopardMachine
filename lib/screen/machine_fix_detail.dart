@@ -27,20 +27,23 @@ class _MachineFixDetailState extends State<MachineFixDetail> {
       imageFixedName,
       imageCauseUrl,
       imageFixedUrl,
-      machineID;
+      machineID,
+      userType;
 
   MachineModel machinesForDisplay;
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   machinesForDisplay = widget.machinesForDisplay;
-  //   causeDetail = machinesForDisplay.causeDetail.toString();
-  //   imageCauseUrl = maintenanceModel.causeImageUrl.toString();
-  //   fixedDetail = maintenanceModel.fixedDetail.toString();
-  //   imageFixedUrl = maintenanceModel.fixedImageUrl.toString();
-  //   print('CauseDetail = $causeDetail');
-  // }
+  @override
+  void initState() {
+    super.initState();
+    findUser();
+  }
+
+  Future<Null> findUser() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      userType = preferences.getString('UserType');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,6 +90,7 @@ class _MachineFixDetailState extends State<MachineFixDetail> {
           Container(
             width: 320.0,
             child: TextFormField(
+              enabled: (userType != 'user_pharmacist' && machinesForDisplay.machineMaintenanceStatus == 'maintenanceSuccessed') ? false : true,
               onChanged: (value) {
                 causeDetail = value;
               },
@@ -112,7 +116,7 @@ class _MachineFixDetailState extends State<MachineFixDetail> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
-        IconButton(
+        IconButton(          
             icon: Icon(
               Icons.add_a_photo,
               size: 36.0,
@@ -122,11 +126,12 @@ class _MachineFixDetailState extends State<MachineFixDetail> {
             }),
         Container(
           width: 200.0,
-          child: machinesForDisplay.causeImageUrl == null
-              ? Image.asset('images/myimage.png')
+          child: (machinesForDisplay.causeImageUrl != null &&
+                  machinesForDisplay.causeImageUrl.isNotEmpty)
+              ? Image.network(
+                  '${MyConstant().domain}' + machinesForDisplay.causeImageUrl)
               : causeFile == null
-                  ? Image.network('${MyConstant().domain}' +
-                      machinesForDisplay.causeImageUrl)
+                  ? Image.asset('images/myimage.png')
                   : Image.file(causeFile),
         ),
         IconButton(
@@ -155,11 +160,12 @@ class _MachineFixDetailState extends State<MachineFixDetail> {
             }),
         Container(
           width: 200.0,
-          child: machinesForDisplay.fixedImageUrl == null
-              ? Image.asset('images/myimage.png')
+          child: (machinesForDisplay.fixedImageUrl != null &&
+                  machinesForDisplay.fixedImageUrl.isNotEmpty)
+              ? Image.network(
+                  '${MyConstant().domain}' + machinesForDisplay.fixedImageUrl)
               : fixedFile == null
-                  ? Image.network('${MyConstant().domain}' +
-                      machinesForDisplay.fixedImageUrl)
+                  ? Image.asset('images/myimage.png')
                   : Image.file(fixedFile),
         ),
         IconButton(
@@ -198,6 +204,7 @@ class _MachineFixDetailState extends State<MachineFixDetail> {
           Container(
             width: 320.0,
             child: TextFormField(
+              enabled: (userType != 'user_pharmacist' && machinesForDisplay.machineMaintenanceStatus == 'maintenanceSuccessed') ? false : true,
               onChanged: (value) => fixedDetail = value.trim(),
               maxLines: 10,
               initialValue: machinesForDisplay.fixedDetail,
@@ -219,7 +226,7 @@ class _MachineFixDetailState extends State<MachineFixDetail> {
 
   Widget saveButton() => Container(
         width: 300.0,
-        child: RaisedButton(
+        child: RaisedButton(          
           color: MyStyle().red400,
           onPressed: () {
             print('causeDetail = $causeDetail , fixedDetail = $fixedDetail');

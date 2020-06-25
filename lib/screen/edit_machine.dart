@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:leopardmachine/model/machine_model.dart';
+import 'package:leopardmachine/screen/machine_eventlog_view.dart';
 import 'package:leopardmachine/utility/my_constant.dart';
 import 'package:leopardmachine/utility/my_style.dart';
 import 'package:leopardmachine/utility/normal_dialog.dart';
@@ -32,6 +33,32 @@ class _EditMachineState extends State<EditMachine> {
           'แก้ไขเครื่องจักร',
           style: MyStyle().kanit,
         ),
+        actions: <Widget>[
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              switch (value) {
+                case 'ดูประวัติเครื่องจักร':
+                  print('xxx');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MachineEventLogView(
+                          machinesForDisplay: _machinesForDisplay),
+                    ),
+                  );
+                  break;
+              }
+            },
+            itemBuilder: (BuildContext context) {
+              return {'ดูประวัติเครื่องจักร'}.map((String choice) {
+                return PopupMenuItem<String>(
+                  value: choice,
+                  child: Text(choice),
+                );
+              }).toList();
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
