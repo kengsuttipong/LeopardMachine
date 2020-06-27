@@ -1,15 +1,18 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:leopardmachine/model/machine_model.dart';
 import 'package:leopardmachine/utility/add_eventlog.dart';
 import 'package:leopardmachine/utility/my_constant.dart';
 import 'package:leopardmachine/utility/my_style.dart';
 import 'package:intl/intl.dart';
 import 'package:leopardmachine/utility/normal_dialog.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AddMachine extends StatefulWidget {
   @override
@@ -17,7 +20,7 @@ class AddMachine extends StatefulWidget {
 }
 
 class _AddMachineState extends State<AddMachine> {
-  String machineCode, machineName, _datetime, imageUrl, imageName;
+  String machineID, machineCode, machineName, _datetime, imageUrl, imageName;
   DateTime appointmentDate;
   File file;
 
@@ -223,7 +226,6 @@ class _AddMachineState extends State<AddMachine> {
       Response response = await Dio().get(url);
       if (response.toString() == 'null') {
         insertUpdateMachine();
-        AddEventLog().addEventLog();
       } else {
         normalDialog(
             context, 'ไม่สามารถบันทึกได้ เนื่องจากมีชื่อผู้ใช้งานนี้แล้ว');
@@ -241,14 +243,53 @@ class _AddMachineState extends State<AddMachine> {
     try {
       print(url);
       Response response = await Dio().get(url);
-      print('4 XXX');
-      print('5 res = $response');
+      print('res = $response');
 
       if (response.toString() == 'true') {
+        SharedPreferences preferences = await SharedPreferences.getInstance();
+        String userIDLogin = preferences.getString('userID');
+        DateTime datenow = DateTime.now();
+
+        getMachineIDByMachineCode().then((value) {
+          AddEventLog().addEventLog(
+              machineID,
+              userIDLogin,
+              datenow,
+              '_addMachine',
+              'เพิ่มเครื่องจักร',
+              imageUrl,
+              machineCode,
+              machineName,
+              appointmentDate,
+              '',
+              '',
+              '',
+              '',
+              '',
+              '',
+              '',
+              '');
+        });
+
         Navigator.of(context)
             .pop('เครื่องจักร ' + machineCode + ' ได้ทำการบันทึกแล้ว');
       } else {
         normalDialog(context, 'ไม่สามารถเพิ่มได้ กรุณาติดต่อเจ้าหน้าที่');
+      }
+    } catch (e) {}
+  }
+
+  Future<Null> getMachineIDByMachineCode() async {
+    String url =
+        '${MyConstant().domain}/LeopardMachine/getMachineIDByMachineCode.php?isAdd=true&MachineCode=$machineCode';
+
+    try {
+      print(url);
+      Response response = await Dio().get(url);
+      var machineList = json.decode(response.data);
+      for (var map in machineList) {
+        MachineModel jsonResponse = MachineModel.fromJson(map);
+        machineID = jsonResponse.machineID;
       }
     } catch (e) {}
   }

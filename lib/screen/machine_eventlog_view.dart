@@ -7,6 +7,7 @@ import 'package:leopardmachine/model/eventlog_model.dart';
 import 'package:leopardmachine/model/machine_model.dart';
 import 'package:leopardmachine/screen/machine_eventlog_detail.dart';
 import 'package:leopardmachine/utility/my_constant.dart';
+import 'package:leopardmachine/utility/my_style.dart';
 
 class MachineEventLogView extends StatefulWidget {
   final MachineModel machinesForDisplay;
@@ -17,7 +18,7 @@ class MachineEventLogView extends StatefulWidget {
 }
 
 class _MachineEventLogViewState extends State<MachineEventLogView> {
-  EventLogModel eventLog;
+  EventLogModel eventLogModel;
   MachineModel machinesForDisplay;
   List<EventLogModel> _eventLog = List<EventLogModel>();
   List<EventLogModel> _eventLogForDisplay = List<EventLogModel>();
@@ -62,7 +63,10 @@ class _MachineEventLogViewState extends State<MachineEventLogView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('ประวัติเครื่องจักร $machineCode'),
+        title: Text(
+          'ประวัติเครื่องจักร $machineCode',
+          style: MyStyle().kanit,
+        ),
       ),
       body: SingleChildScrollView(
         child: bodyTable(),
@@ -104,7 +108,7 @@ class _MachineEventLogViewState extends State<MachineEventLogView> {
                   cells: [
                     DataCell(
                       Container(
-                        width: 70.0,
+                        width: MediaQuery.of(context).size.width * 0.2,
                         child: Text(
                           eventLog.actionDate,
                           style: GoogleFonts.kanit(
@@ -114,23 +118,28 @@ class _MachineEventLogViewState extends State<MachineEventLogView> {
                           ),
                         ),
                       ),
-                      onTap: () => navigateToLogDetail(),
+                      onTap: () => navigateToLogDetail(
+                          eventLog.eventlogid, eventLog.actionType),
                     ),
                     DataCell(
-                        Container(
-                          width: 70.0,
-                          child: Text(
-                            eventLog.userfirstlastname,
-                            style: GoogleFonts.kanit(
-                              textStyle: TextStyle(
-                                fontSize: 12.0,
-                              ),
+                      Container(
+                        width: MediaQuery.of(context).size.width * 0.2,
+                        child: Text(
+                          eventLog.userfirstlastname,
+                          style: GoogleFonts.kanit(
+                            textStyle: TextStyle(
+                              fontSize: 12.0,
                             ),
                           ),
                         ),
-                        onTap: () => navigateToLogDetail()),
+                      ),
+                      onTap: () => navigateToLogDetail(
+                          eventLog.eventlogid, eventLog.actionType),
+                    ),
                     DataCell(
-                        Text(
+                      Container(
+                        width: MediaQuery.of(context).size.width * 0.6,
+                        child: Text(
                           eventLog.comment,
                           style: GoogleFonts.kanit(
                             textStyle: TextStyle(
@@ -138,7 +147,10 @@ class _MachineEventLogViewState extends State<MachineEventLogView> {
                             ),
                           ),
                         ),
-                        onTap: () => navigateToLogDetail()),
+                      ),
+                      onTap: () => navigateToLogDetail(
+                          eventLog.eventlogid, eventLog.actionType),
+                    ),
                   ],
                 ),
               )
@@ -148,10 +160,14 @@ class _MachineEventLogViewState extends State<MachineEventLogView> {
     );
   }
 
-  Future<Null> navigateToLogDetail() async {
-    MaterialPageRoute route = MaterialPageRoute(
-      builder: (context) => MachineEventLogDetail(),
-    );
-    Navigator.push(context, route);
+  Future<Null> navigateToLogDetail(eventlogid, actionType) async {
+    if (actionType != '_holdingMaintenance') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MachineEventLogDetail(eventlogid: eventlogid),
+        ),
+      );
+    }
   }
 }

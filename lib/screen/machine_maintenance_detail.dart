@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:leopardmachine/model/machine_model.dart';
+import 'package:leopardmachine/utility/add_eventlog.dart';
 import 'package:leopardmachine/utility/my_constant.dart';
 import 'package:leopardmachine/utility/my_style.dart';
 import 'package:leopardmachine/utility/normal_dialog.dart';
@@ -181,8 +182,8 @@ class _MaintenanceDetailState extends State<MaintenanceDetail> {
           width: 200.0,
           child: (machinesForDisplay.solveListImageUrl != null &&
                   machinesForDisplay.solveListImageUrl.isNotEmpty)
-              ? Image.network(
-                  '${MyConstant().domain}' + machinesForDisplay.solveListImageUrl)
+              ? Image.network('${MyConstant().domain}' +
+                  machinesForDisplay.solveListImageUrl)
               : solveListFile == null
                   ? Image.asset('images/myimage.png')
                   : Image.file(solveListFile),
@@ -275,7 +276,7 @@ class _MaintenanceDetailState extends State<MaintenanceDetail> {
     String userIDLogin = preferences.getString('userID');
     DateTime datenow = DateTime.now();
     String machineID = machinesForDisplay.machineID;
-    String nextStatus;
+    String nextStatus, eventLogStatus, eventLogComment;
 
     issueDetail =
         issueDetail == null ? machinesForDisplay.issueDetail : issueDetail;
@@ -291,12 +292,16 @@ class _MaintenanceDetailState extends State<MaintenanceDetail> {
 
     if (machinesForDisplay.maintenanceStatus == '_pendingMaintenance') {
       nextStatus = '_pendingVerify';
+      eventLogStatus = '_pendingVerify';
+      eventLogComment = 'ทำการบำรุงรักษาเครื่องจักร';
     } else if (machinesForDisplay.maintenanceStatus == '_pendingVerify') {
       nextStatus = '_perfectMachine';
+      eventLogStatus = '_perfectMachine';
+      eventLogComment = 'ตรวจสอบการบำรุงรักษาเครื่องจักร';
     }
 
     String url =
-        '${MyConstant().domain}/LeopardMachine/updateYearlyMaintenanceDetailByMachineID.php?isAdd=true&UserID=$userIDLogin&MachineID=$machineID&ApplyDate=$datenow&IssueDetail=$issueDetail&IssueImageUrl=$imageIssueUrl&SolveListDetail=$solveListDetail&SolveListImageUrl=$imageSolveListUrl&NextStatus=$nextStatus';
+        '${MyConstant().domain}/LeopardMachine/updateYearlyMaintenanceDetailByMachineID.php?isAdd=true&UserID=$userIDLogin&MachineID=$machineID&ApplyDate=$datenow&IssueDetail=$issueDetail&IssueImageUrl=$imageIssueUrl&solveListDetail=$solveListDetail&solveListImageUrl=$imageSolveListUrl&NextStatus=$nextStatus';
 
     try {
       print(url);
@@ -305,6 +310,25 @@ class _MaintenanceDetailState extends State<MaintenanceDetail> {
       print('5 res = $response');
 
       if (response.toString() == 'true') {
+        AddEventLog().addEventLog(
+            machineID,
+            userIDLogin,
+            datenow,
+            eventLogStatus,
+            eventLogComment,
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            issueDetail,
+            imageIssueUrl,
+            solveListDetail,
+            imageSolveListUrl);
+
         Navigator.of(context).pop('เครื่องจักร ' +
             machinesForDisplay.machineCode +
             ' ได้ทำการบันทึกแล้ว');

@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:leopardmachine/model/machine_model.dart';
 import 'package:leopardmachine/screen/machine_maintenance_inform.dart';
+import 'package:leopardmachine/utility/add_eventlog.dart';
 import 'package:leopardmachine/utility/my_constant.dart';
 import 'package:leopardmachine/utility/my_style.dart';
 import 'package:leopardmachine/utility/normal_dialog.dart';
@@ -487,6 +488,26 @@ class _MachineFixedInformState extends State<MachineFixedInform> {
       setState(() {
         _refresh('availableMachine');
       });
+
+      AddEventLog().addEventLog(
+          machineID,
+          userID,
+          applyDate,
+          '_holdingMaintenance',
+          'แจ้งซ่อมเครื่องจักร',
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+          '');
+
       showSnackBar(message);
       print('value = $value, url = $url');
     });

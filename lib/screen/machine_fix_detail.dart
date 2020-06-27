@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:leopardmachine/model/machine_model.dart';
+import 'package:leopardmachine/utility/add_eventlog.dart';
 import 'package:leopardmachine/utility/my_constant.dart';
 import 'package:leopardmachine/utility/my_style.dart';
 import 'package:leopardmachine/utility/normal_dialog.dart';
@@ -90,7 +91,11 @@ class _MachineFixDetailState extends State<MachineFixDetail> {
           Container(
             width: 320.0,
             child: TextFormField(
-              enabled: (userType != 'user_pharmacist' && machinesForDisplay.machineMaintenanceStatus == 'maintenanceSuccessed') ? false : true,
+              enabled: (userType != 'user_pharmacist' &&
+                      machinesForDisplay.machineMaintenanceStatus ==
+                          'maintenanceSuccessed')
+                  ? false
+                  : true,
               onChanged: (value) {
                 causeDetail = value;
               },
@@ -116,7 +121,7 @@ class _MachineFixDetailState extends State<MachineFixDetail> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
-        IconButton(          
+        IconButton(
             icon: Icon(
               Icons.add_a_photo,
               size: 36.0,
@@ -204,7 +209,11 @@ class _MachineFixDetailState extends State<MachineFixDetail> {
           Container(
             width: 320.0,
             child: TextFormField(
-              enabled: (userType != 'user_pharmacist' && machinesForDisplay.machineMaintenanceStatus == 'maintenanceSuccessed') ? false : true,
+              enabled: (userType != 'user_pharmacist' &&
+                      machinesForDisplay.machineMaintenanceStatus ==
+                          'maintenanceSuccessed')
+                  ? false
+                  : true,
               onChanged: (value) => fixedDetail = value.trim(),
               maxLines: 10,
               initialValue: machinesForDisplay.fixedDetail,
@@ -226,28 +235,16 @@ class _MachineFixDetailState extends State<MachineFixDetail> {
 
   Widget saveButton() => Container(
         width: 300.0,
-        child: RaisedButton(          
+        child: RaisedButton(
           color: MyStyle().red400,
           onPressed: () {
             print('causeDetail = $causeDetail , fixedDetail = $fixedDetail');
-            if (causeDetail == null && fixedDetail == null) {
-              if (machinesForDisplay.fixedDetail != null &&
-                  machinesForDisplay.causeDetail != null) {
-                normalDialog(context, 'ข้อมูลไม่มีการเปลี่ยนแปลง');
-              } else {
-                normalDialog(context, 'กรุณาเพิ่มข้อมูลให้ครบถ้วน');
-              }
-              // } else if (causeFile == null) {
-              //   normalDialog(context, 'กรุณาเพิ่มรูปภาพในส่วนสาเหตุ');
-              // } else if (fixedFile == null) {
-              //   normalDialog(context, 'กรุณาเพิ่มรูปภาพในส่วนวิธีแก้ไข');
-            } else {
-              if (causeFile != null && fixedFile != null) {
-                uploadCauseImage();
-                uploadFixedImage();
-              }
-              updateMaintenanceDetail();
+
+            if (causeFile != null && fixedFile != null) {
+              uploadCauseImage();
+              uploadFixedImage();
             }
+            updateMaintenanceDetail();
           },
           child: Text(
             'บันทึก',
@@ -303,7 +300,7 @@ class _MachineFixDetailState extends State<MachineFixDetail> {
     String userIDLogin = preferences.getString('userID');
     DateTime datenow = DateTime.now();
     String machineID = machinesForDisplay.machineID;
-    String nextStatus;
+    String nextStatus, eventLogStatus, eventLogComment;
 
     causeDetail =
         causeDetail == null ? machinesForDisplay.causeDetail : causeDetail;
@@ -318,8 +315,13 @@ class _MachineFixDetailState extends State<MachineFixDetail> {
 
     if (machinesForDisplay.machineMaintenanceStatus == 'holdingMaintenance') {
       nextStatus = 'maintenanceSuccessed';
-    } else if (machinesForDisplay.machineMaintenanceStatus == 'maintenanceSuccessed') {
+      eventLogStatus = '_maintenanceSuccessed';
+      eventLogComment = 'ซ่อมแซมเครื่องจักร';
+    } else if (machinesForDisplay.machineMaintenanceStatus ==
+        'maintenanceSuccessed') {
       nextStatus = 'availableMachine';
+      eventLogStatus = '_availableMachine';
+      eventLogComment = 'ตรวจสอบการซ่อมแซมเครื่องจักร';
     }
 
     String url =
@@ -332,6 +334,25 @@ class _MachineFixDetailState extends State<MachineFixDetail> {
       print('5 res = $response');
 
       if (response.toString() == 'true') {
+        AddEventLog().addEventLog(
+            machineID,
+            userIDLogin,
+            datenow,
+            eventLogStatus,
+            eventLogComment,
+            '',
+            '',
+            '',
+            '',
+            causeDetail,
+            imageCauseUrl,
+            fixedDetail,
+            imageFixedUrl,
+            '',
+            '',
+            '',
+            '');
+
         Navigator.of(context).pop('เครื่องจักร ' +
             machinesForDisplay.machineCode +
             ' ได้ทำการบันทึกแล้ว');

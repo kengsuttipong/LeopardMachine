@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:leopardmachine/model/machine_model.dart';
 import 'package:leopardmachine/screen/machine_eventlog_view.dart';
+import 'package:leopardmachine/utility/add_eventlog.dart';
 import 'package:leopardmachine/utility/my_constant.dart';
 import 'package:leopardmachine/utility/my_style.dart';
 import 'package:leopardmachine/utility/normal_dialog.dart';
@@ -191,9 +192,12 @@ class _EditMachineState extends State<EditMachine> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Container(
-            child: Text(_datetime == null
-                ? _machinesForDisplay.appointmentDate
-                : _datetime),
+            child: Text(
+              _datetime == null
+                  ? 'วันที่บำรุงรักษา : ' + _machinesForDisplay.appointmentDate
+                  : 'วันที่บำรุงรักษา : ' + _datetime,
+              style: MyStyle().kanit,
+            ),
           ),
           IconButton(
               icon: Icon(
@@ -303,8 +307,10 @@ class _EditMachineState extends State<EditMachine> {
     appointmentDate = appointmentDate == null
         ? DateTime.parse(_machinesForDisplay.appointmentDate)
         : appointmentDate;
+    imageUrl = imageName == null
+        ? _machinesForDisplay.imageUrl
+        : '/LeopardMachine/MachineImages/$imageName';
 
-    imageUrl = '/LeopardMachine/MachineImages/$imageName';
     print('3 imageUrl = $imageUrl');
 
     String url =
@@ -317,6 +323,24 @@ class _EditMachineState extends State<EditMachine> {
       print('5 res = $response');
 
       if (response.toString() == 'true') {
+        AddEventLog().addEventLog(
+            machineID,
+            userIDLogin,
+            datenow,
+            '_editMachine',
+            'แก้ไขข้อมูลเครื่องจักร',
+            imageUrl,
+            machineCode,
+            machineName,
+            appointmentDate,
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '');
         Navigator.of(context)
             .pop('เครืองจักร ' + machineCode + ' ได้ทำการแก้ไขแล้ว');
       } else {

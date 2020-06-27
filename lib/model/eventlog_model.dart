@@ -6,9 +6,37 @@ class EventLogModel {
   String actionType;
   String comment;
   String imageUrl;
+  String machineCode;
+  String machineName;
+  String maintenanceDate;
+  String causeDetail;
+  String causeImageUrl;
+  String fixedDetail;
+  String fixedImageUrl;
+  String issueDetail;
+  String issueImageUrl;
+  String solveListDetail;
+  String solveListImageUrl;
 
   EventLogModel(
-      {this.eventlogid, this.machineid, this.userfirstlastname, this.actionDate, this.actionType, this.comment, this.imageUrl});
+      {this.eventlogid,
+      this.machineid,
+      this.userfirstlastname,
+      this.actionDate,
+      this.actionType,
+      this.comment,
+      this.imageUrl,
+      this.machineCode,
+      this.machineName,
+      this.maintenanceDate,
+      this.causeDetail,
+      this.causeImageUrl,
+      this.fixedDetail,
+      this.fixedImageUrl,
+      this.issueDetail,
+      this.issueImageUrl,
+      this.solveListDetail,
+      this.solveListImageUrl});
 
   EventLogModel.fromJson(Map<String, dynamic> json) {
     eventlogid = json['EventLogID'];
@@ -18,6 +46,17 @@ class EventLogModel {
     actionType = json['ActionType'];
     comment = json['Comment'];
     imageUrl = json['ImageUrl'];
+    machineCode = json['MachineCode'];
+    machineName = json['MachineName'];
+    maintenanceDate = json['MaintenanceDate'];
+    causeDetail = json['CauseDetail'];
+    causeImageUrl = json['CauseImageUrl'];
+    fixedDetail = json['FixedDetail'];
+    fixedImageUrl = json['FixedImageUrl'];
+    issueDetail = json['IssueDetail'];
+    issueImageUrl = json['IssueImageUrl'];
+    solveListDetail = json['SolveListDetail'];
+    solveListImageUrl = json['SolveListImageUrl'];
   }
 
   Map<String, dynamic> toJson() {
@@ -29,6 +68,18 @@ class EventLogModel {
     data['actionType'] = this.actionType;
     data['comment'] = this.comment;
     data['imageUrl'] = this.imageUrl;
+    data['machineCode'] = this.machineCode;
+    data['machineName'] = this.machineName;
+    data['maintenanceDate'] = this.maintenanceDate;
+    data['causeDetail'] = this.causeDetail;
+    data['causeImageUrl'] = this.causeImageUrl;
+    data['fixedDetail'] = this.fixedDetail;
+    data['fixedImageUrl'] = this.fixedImageUrl;
+    data['issueDetail'] = this.issueDetail;
+    data['issueImageUrl'] = this.issueImageUrl;
+    data['solveListDetail'] = this.solveListDetail;
+    data['solveListImageUrl'] = this.solveListImageUrl;
+
     return data;
   }
 }

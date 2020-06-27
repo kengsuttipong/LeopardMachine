@@ -139,7 +139,7 @@ class _MachineListState extends State<MachineList> {
                         _machinesForDisplay[index].imageUrl),
           ),
           title: Text(
-            _machinesForDisplay[index].machineName,
+            _machinesForDisplay[index].machineCode,
             style: GoogleFonts.kanit(
               textStyle: TextStyle(
                 color: MyStyle().red400,
@@ -152,7 +152,7 @@ class _MachineListState extends State<MachineList> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
-                'รหัสเครื่อง : ' + _machinesForDisplay[index].machineCode,
+                'ชื่อเครื่อง : ' + _machinesForDisplay[index].machineName,
                 style: MyStyle().kanit,
               ),
               Text(

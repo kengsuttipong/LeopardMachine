@@ -82,7 +82,7 @@ class _MaintenanceInformState extends State<MaintenanceInform> {
             style: MyStyle().kanit,
           ),
           bottom: TabBar(
-            indicatorColor: Colors.yellow,
+            indicatorColor: Colors.white,
             indicatorWeight: 7.0,
             labelStyle: MyStyle().kanit,
             tabs: myTabs,
