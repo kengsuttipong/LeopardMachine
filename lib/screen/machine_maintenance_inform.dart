@@ -1,10 +1,12 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:leopardmachine/model/machine_model.dart';
 import 'package:leopardmachine/screen/machine_maintenance_detail.dart';
+import 'package:leopardmachine/utility/add_eventlog.dart';
 import 'package:leopardmachine/utility/my_constant.dart';
 import 'package:leopardmachine/utility/my_style.dart';
 import 'package:leopardmachine/utility/normal_dialog.dart';
@@ -19,7 +21,7 @@ class _MaintenanceInformState extends State<MaintenanceInform> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   List<MachineModel> _machines = List<MachineModel>();
   List<MachineModel> _machinesForDisplay = List<MachineModel>();
-  String tabType;
+  String tabType, username, password;
 
   final List<Tab> myTabs = <Tab>[
     Tab(text: 'รอบำรุงรักษา'),
@@ -30,6 +32,7 @@ class _MaintenanceInformState extends State<MaintenanceInform> {
   @override
   void initState() {
     super.initState();
+    findUser();
     readDataMachineListView(tabType).then((value) {
       setState(() {
         _machines.addAll(value);
@@ -44,6 +47,13 @@ class _MaintenanceInformState extends State<MaintenanceInform> {
         _machinesForDisplay = value;
         _machines = value;
       });
+    });
+  }
+
+  Future<Null> findUser() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      username = preferences.getString('userName');
     });
   }
 
@@ -81,6 +91,112 @@ class _MaintenanceInformState extends State<MaintenanceInform> {
             'บำรุงรักษาเครื่องจักร',
             style: MyStyle().kanit,
           ),
+          actions: <Widget>[
+            PopupMenuButton<String>(
+              onSelected: (value) {
+                try {
+                  switch (value) {
+                    case 'จากรหัส A -> Z':
+                      print('จากรหัส A -> Z');
+                      setState(() {
+                        _machinesForDisplay.sort((a, b) {
+                          return a.machineCode
+                              .toString()
+                              .toLowerCase()
+                              .compareTo(
+                                  b.machineCode.toString().toLowerCase());
+                        });
+                      });
+                      break;
+                    case 'จากรหัส Z -> A':
+                      print('จากรหัส Z -> A');
+                      setState(() {
+                        _machinesForDisplay.sort((b, a) {
+                          return a.machineCode
+                              .toString()
+                              .toLowerCase()
+                              .compareTo(
+                                  b.machineCode.toString().toLowerCase());
+                        });
+                      });
+                      break;
+                    case 'จากชื่อ ก -> ฮ':
+                      print('จากชื่อ ก -> ฮ');
+                      setState(() {
+                        _machinesForDisplay.sort((a, b) {
+                          return a.machineName
+                              .toString()
+                              .toLowerCase()
+                              .compareTo(
+                                  b.machineName.toString().toLowerCase());
+                        });
+                      });
+                      break;
+                    case 'จากชื่อ ฮ -> ก':
+                      print('จากชื่อ ฮ -> ก');
+                      setState(() {
+                        _machinesForDisplay.sort((b, a) {
+                          return a.machineName
+                              .toString()
+                              .toLowerCase()
+                              .compareTo(
+                                  b.machineName.toString().toLowerCase());
+                        });
+                      });
+                      break;
+                    case 'วันที่น้อยไปมาก':
+                      print('วันที่น้อยไปมาก');
+                      setState(() {
+                        _machinesForDisplay.sort((a, b) {
+                          return a.appointmentDate
+                              .toString()
+                              .toLowerCase()
+                              .compareTo(
+                                  b.appointmentDate.toString().toLowerCase());
+                        });
+                      });
+                      break;
+                    case 'วันที่มากไปน้อย':
+                      print('วันที่มากไปน้อย');
+                      setState(() {
+                        _machinesForDisplay.sort((b, a) {
+                          return a.appointmentDate
+                              .toString()
+                              .toLowerCase()
+                              .compareTo(
+                                  b.appointmentDate.toString().toLowerCase());
+                        });
+                      });
+                      break;
+                    case 'ตั้งค่าเริ่มต้นใหม่':
+                      print('ตั้งค่าเริ่มต้นใหม่');
+                      return showDialogYesNoConfirmResetToBegin(context);
+                      break;
+                  }
+                } catch (e) {}
+              },
+              itemBuilder: (BuildContext context) {
+                print('username = $username');
+                return {
+                  'จากรหัส A -> Z',
+                  'จากรหัส Z -> A',
+                  'จากชื่อ ก -> ฮ',
+                  'จากชื่อ ฮ -> ก',
+                  'วันที่น้อยไปมาก',
+                  'วันที่มากไปน้อย',
+                  if (username == 'admin') 'ตั้งค่าเริ่มต้นใหม่',
+                }.map((String choice) {
+                  return PopupMenuItem<String>(
+                    value: choice,
+                    child: Text(
+                      choice,
+                      style: MyStyle().kanit,
+                    ),
+                  );
+                }).toList();
+              },
+            ),
+          ],
           bottom: TabBar(
             indicatorColor: Colors.white,
             indicatorWeight: 7.0,
@@ -108,6 +224,137 @@ class _MaintenanceInformState extends State<MaintenanceInform> {
       ),
     );
   }
+
+  void showDialogYesNoConfirmResetToBegin(context) {
+    showDialog(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: Text(
+          'คุณต้องการที่จะตั้งค่าเริ่มต้นใหม่ ใช่หรือไม่?',
+          style: MyStyle().kanit,
+        ),
+        children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              FlatButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    'ยกเลิก',
+                    style: GoogleFonts.kanit(
+                      textStyle: TextStyle(color: MyStyle().red400),
+                    ),
+                  )),
+              FlatButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  resetTobeginForAdminOnly(context);
+                },
+                child: Text(
+                  'ใช่',
+                  style: GoogleFonts.kanit(
+                    textStyle: TextStyle(color: MyStyle().red400),
+                  ),
+                ),
+              ),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+  void resetTobeginForAdminOnly(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return SimpleDialog(
+          title: Text(
+            'กรุณากรอกรหัสผ่านผู้ดูแลระบบ เพื่อยืนยันการตั้งค่าเริ่มต้นใหม่',
+            style: MyStyle().kanit,
+          ),
+          children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                passwordForm(),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                FlatButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text(
+                      'ยกเลิก',
+                      style: GoogleFonts.kanit(
+                        textStyle: TextStyle(color: MyStyle().red400),
+                      ),
+                    )),
+                FlatButton(
+                  onPressed: () => verifyToResetMachine(),
+                  child: Text(
+                    'ยืนยัน',
+                    style: GoogleFonts.kanit(
+                      textStyle: TextStyle(color: MyStyle().red400),
+                    ),
+                  ),
+                ),
+              ],
+            )
+          ],
+        );
+      },
+    );
+  }
+
+  Future<Null> verifyToResetMachine() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    String loginPassword = preferences.getString('password');
+    if (loginPassword == password && username == 'admin') {
+      String url =
+          '${MyConstant().domain}/LeopardMachine/resetMachineToDefault.php?isAdd=true';
+      Response response = await Dio().get(url);
+
+      if (response.toString() == 'true') {
+        Navigator.pop(context);
+        showSnackBar(
+            'เครื่องจักรที่บำรุงรักษา ได้ทำการตั้งค่าเริ่มต้นใหม่เรียบร้อยแล้ว');
+      }
+    } else {
+      normalDialog(context, 'รหัสผ่านที่ท่านกรอกไม่ถูกต้อง');
+    }
+  }
+
+  Widget passwordForm() => Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Container(
+            width: 250.0,
+            child: TextFormField(
+              onChanged: (value) {
+                password = value;
+              },
+              obscureText: true,
+              decoration: InputDecoration(
+                labelStyle: GoogleFonts.kanit(
+                  textStyle: TextStyle(color: MyStyle().red400),
+                ),
+                labelText: 'รหัสผ่าน',
+                border: OutlineInputBorder(),
+                enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: MyStyle().red400)),
+                focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: MyStyle().red400)),
+              ),
+            ),
+          ),
+        ],
+      );
 
   _pendingMaintenance() {
     return new RefreshIndicator(
@@ -246,8 +493,7 @@ class _MaintenanceInformState extends State<MaintenanceInform> {
               ],
             ),
             onTap: () async {
-              print(
-                  '1 status = ${_machinesForDisplay[i].maintenanceStatus}');
+              print('1 status = ${_machinesForDisplay[i].maintenanceStatus}');
               if (_machinesForDisplay[i].maintenanceStatus ==
                       '_pendingVerify' ||
                   _machinesForDisplay[i].maintenanceStatus ==
@@ -313,8 +559,6 @@ class _MaintenanceInformState extends State<MaintenanceInform> {
               FlatButton(
                 onPressed: () {
                   print('index = $i');
-                  //insertInformFixMachine(
-                  // _machinesForDisplay[i], maintenanceStatus);
                 },
                 child: Text(
                   'ใช่',
@@ -347,7 +591,7 @@ class _MaintenanceInformState extends State<MaintenanceInform> {
       context: context,
       builder: (context) => SimpleDialog(
         title: Text(
-          'คูณต้องการยกเลิกการแจ้งซ่อมเครื่องจักรนี้ใช่หรือไม่?',
+          'คุณต้องการยกเลิกการบำรุงรักษาเครื่องจักรนี้ใช่หรือไม่?',
           style: MyStyle().kanit,
         ),
         children: <Widget>[
@@ -395,8 +639,7 @@ class _MaintenanceInformState extends State<MaintenanceInform> {
     String machineID = _machinesForDisplay[index].machineID;
     String rollbackStatus = '';
 
-    if (_machinesForDisplay[index].maintenanceStatus ==
-        '_pendingVerify') {
+    if (_machinesForDisplay[index].maintenanceStatus == '_pendingVerify') {
       rollbackStatus = '_pendingMaintenance';
     } else if (_machinesForDisplay[index].maintenanceStatus ==
         '_perfectMachine') {
@@ -413,9 +656,28 @@ class _MaintenanceInformState extends State<MaintenanceInform> {
         setState(() {
           _refresh(_machinesForDisplay[index].maintenanceStatus);
         });
+
+        AddEventLog().addEventLog(
+            machineID,
+            userIDLogin,
+            datenow,
+            '_rollbackMaintenanceMachine',
+            'ยกเลิกการบำรุงเครื่องจักร',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '');
         String machineCodeSnack = _machinesForDisplay[index].machineCode;
         String message =
-            'เครื่องจักร $machineCodeSnack ได้ยกเลิกการแจ้งซ่อมแล้ว';
+            'เครื่องจักร $machineCodeSnack ได้ยกเลิกการบำรุงรักษาแล้ว';
         showSnackBar(message);
       } else {
         normalDialog(context, 'ไม่สามารถลบข้อมูลได้ กรุณาติดต่อเจ้าหน้าที่');

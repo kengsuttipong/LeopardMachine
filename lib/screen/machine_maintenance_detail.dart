@@ -275,6 +275,7 @@ class _MaintenanceDetailState extends State<MaintenanceDetail> {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     String userIDLogin = preferences.getString('userID');
     DateTime datenow = DateTime.now();
+    DateTime nextAppointment;
     String machineID = machinesForDisplay.machineID;
     String nextStatus, eventLogStatus, eventLogComment;
 
@@ -294,14 +295,17 @@ class _MaintenanceDetailState extends State<MaintenanceDetail> {
       nextStatus = '_pendingVerify';
       eventLogStatus = '_pendingVerify';
       eventLogComment = 'ทำการบำรุงรักษาเครื่องจักร';
+      nextAppointment = DateTime.parse(machinesForDisplay.appointmentDate);
     } else if (machinesForDisplay.maintenanceStatus == '_pendingVerify') {
       nextStatus = '_perfectMachine';
       eventLogStatus = '_perfectMachine';
       eventLogComment = 'ตรวจสอบการบำรุงรักษาเครื่องจักร';
+      nextAppointment = new DateTime(
+          DateTime.now().year + 1, DateTime.now().month, DateTime.now().day);
     }
 
     String url =
-        '${MyConstant().domain}/LeopardMachine/updateYearlyMaintenanceDetailByMachineID.php?isAdd=true&UserID=$userIDLogin&MachineID=$machineID&ApplyDate=$datenow&IssueDetail=$issueDetail&IssueImageUrl=$imageIssueUrl&solveListDetail=$solveListDetail&solveListImageUrl=$imageSolveListUrl&NextStatus=$nextStatus';
+        '${MyConstant().domain}/LeopardMachine/updateYearlyMaintenanceDetailByMachineID.php?isAdd=true&UserID=$userIDLogin&MachineID=$machineID&ApplyDate=$datenow&IssueDetail=$issueDetail&IssueImageUrl=$imageIssueUrl&solveListDetail=$solveListDetail&solveListImageUrl=$imageSolveListUrl&NextStatus=$nextStatus&AppointmentDate=$nextAppointment';
 
     try {
       print(url);

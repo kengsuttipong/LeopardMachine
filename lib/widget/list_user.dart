@@ -69,6 +69,73 @@ class _UserListState extends State<UserList> {
           'รายชื่อพนักงานในระบบ',
           style: MyStyle().kanit,
         ),
+        actions: <Widget>[
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              try {
+                switch (value) {
+                  case 'จากชื่อ ก -> ฮ':
+                    print('จากชื่อ ก -> ฮ');
+                    setState(() {
+                      _usersForDisplay.sort((a, b) {
+                        return a.firstName
+                            .toString()
+                            .toLowerCase()
+                            .compareTo(b.firstName.toString().toLowerCase());
+                      });
+                    });
+                    break;
+                  case 'จากชื่อ ฮ -> ก':
+                    print('จากชื่อ ฮ -> ก');
+                    setState(() {
+                      _usersForDisplay.sort((b, a) {
+                        return a.firstName
+                            .toString()
+                            .toLowerCase()
+                            .compareTo(b.firstName.toString().toLowerCase());
+                      });
+                    });
+                    break;
+                  case 'จากประเภทพนักงาน ก -> ฮ':
+                    print('จากประเภทพนักงาน ก -> ฮ');
+                    setState(() {
+                      _usersForDisplay.sort((a, b) {
+                        return a.userType
+                            .toString()
+                            .toLowerCase()
+                            .compareTo(b.userType.toString().toLowerCase());
+                      });
+                    });
+                    break;
+                  case 'จากประเภทพนักงาน ฮ -> ก':
+                    print('จากประเภทพนักงาน ฮ -> ก');
+                    setState(() {
+                      _usersForDisplay.sort((b, a) {
+                        return a.userType
+                            .toString()
+                            .toLowerCase()
+                            .compareTo(b.userType.toString().toLowerCase());
+                      });
+                    });
+                    break;
+                }
+              } catch (e) {}
+            },
+            itemBuilder: (BuildContext context) {
+              return {
+                'จากชื่อ ก -> ฮ',
+                'จากชื่อ ฮ -> ก',
+                'จากประเภทพนักงาน ก -> ฮ',
+                'จากประเภทพนักงาน ฮ -> ก',
+              }.map((String choice) {
+                return PopupMenuItem<String>(
+                  value: choice,
+                  child: Text(choice),
+                );
+              }).toList();
+            },
+          ),
+        ],
       ),
       body: Stack(
         children: <Widget>[
@@ -255,7 +322,7 @@ class _UserListState extends State<UserList> {
     return showDialog(
       context: context,
       builder: (context) => SimpleDialog(
-        title: Text('คูณต้องการลบเครื่องจักรใช่หรือไม่?'),
+        title: Text('คูณต้องการลบรายชื่อพนักงานใช่หรือไม่?'),
         children: <Widget>[
           Row(
             mainAxisAlignment: MainAxisAlignment.end,

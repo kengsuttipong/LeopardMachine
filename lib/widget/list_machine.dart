@@ -58,6 +58,99 @@ class _MachineListState extends State<MachineList> {
           'เพิ่มข้อมูลเครื่องจักร',
           style: MyStyle().kanit,
         ),
+        actions: <Widget>[
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              try {
+                switch (value) {
+                  case 'จากรหัส A -> Z':
+                    print('จากรหัส A -> Z');
+                    setState(() {
+                      _machinesForDisplay.sort((a, b) {
+                        return a.machineCode
+                            .toString()
+                            .toLowerCase()
+                            .compareTo(b.machineCode.toString().toLowerCase());
+                      });
+                    });
+                    break;
+                  case 'จากรหัส Z -> A':
+                    print('จากรหัส Z -> A');
+                    setState(() {
+                      _machinesForDisplay.sort((b, a) {
+                        return a.machineCode
+                            .toString()
+                            .toLowerCase()
+                            .compareTo(b.machineCode.toString().toLowerCase());
+                      });
+                    });
+                    break;
+                  case 'จากชื่อ ก -> ฮ':
+                    print('จากชื่อ ก -> ฮ');
+                    setState(() {
+                      _machinesForDisplay.sort((a, b) {
+                        return a.machineName
+                            .toString()
+                            .toLowerCase()
+                            .compareTo(b.machineName.toString().toLowerCase());
+                      });
+                    });
+                    break;
+                  case 'จากชื่อ ฮ -> ก':
+                    print('จากชื่อ ฮ -> ก');
+                    setState(() {
+                      _machinesForDisplay.sort((b, a) {
+                        return a.machineName
+                            .toString()
+                            .toLowerCase()
+                            .compareTo(b.machineName.toString().toLowerCase());
+                      });
+                    });
+                    break;
+                  case 'วันที่น้อยไปมาก':
+                    print('วันที่น้อยไปมาก');
+                    setState(() {
+                      _machinesForDisplay.sort((a, b) {
+                        return a.appointmentDate
+                            .toString()
+                            .toLowerCase()
+                            .compareTo(
+                                b.appointmentDate.toString().toLowerCase());
+                      });
+                    });
+                    break;
+                  case 'วันที่มากไปน้อย':
+                    print('วันที่มากไปน้อย');
+                    setState(() {
+                      _machinesForDisplay.sort((b, a) {
+                        return a.appointmentDate
+                            .toString()
+                            .toLowerCase()
+                            .compareTo(
+                                b.appointmentDate.toString().toLowerCase());
+                      });
+                    });
+                    break;
+                }
+              } catch (e) {}
+            },
+            itemBuilder: (BuildContext context) {
+              return {
+                'จากรหัส A -> Z',
+                'จากรหัส Z -> A',
+                'จากชื่อ ก -> ฮ',
+                'จากชื่อ ฮ -> ก',
+                'วันที่น้อยไปมาก',
+                'วันที่มากไปน้อย'
+              }.map((String choice) {
+                return PopupMenuItem<String>(
+                  value: choice,
+                  child: Text(choice),
+                );
+              }).toList();
+            },
+          ),
+        ],
       ),
       body: Stack(
         children: <Widget>[
@@ -169,11 +262,12 @@ class _MachineListState extends State<MachineList> {
                 child: PopupMenuButton(
                   onSelected: (value) {
                     switch (value) {
-                      case 'ดูประวัติเครื่องจักร':                       
+                      case 'ดูประวัติเครื่องจักร':
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => MachineEventLogView(machinesForDisplay: _machinesForDisplay[index]),                           
+                            builder: (context) => MachineEventLogView(
+                                machinesForDisplay: _machinesForDisplay[index]),
                           ),
                         );
                         break;

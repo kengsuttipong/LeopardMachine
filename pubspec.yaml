@@ -34,6 +34,13 @@ dependencies:
   intl: ^0.16.1
   http: ^0.12.1
   google_fonts: ^1.1.0
+  pdf: ^1.9.0
+  flutter_full_pdf_viewer: ^1.0.6
+  path_provider: ^1.6.11
+  syncfusion_flutter_pdf: ^18.1.59-beta
+  open_file: ^3.0.1
+  flutter_html_to_pdf: ^0.5.2
+  printing: ^3.5.0
 
 dev_dependencies:
   flutter_test:

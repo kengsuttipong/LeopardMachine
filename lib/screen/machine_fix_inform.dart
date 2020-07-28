@@ -25,7 +25,7 @@ class _MachineFixedInformState extends State<MachineFixedInform> {
   List<MachineModel> _machines = List<MachineModel>();
   List<MachineModel> _machinesForDisplay = List<MachineModel>();
   Widget currentWidget = MachineFixedInform();
-  String tabType, firstName, lastName, userlogin;
+  String tabType, firstName, lastName, userlogin, userType;
   bool isrefresh = false;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -52,6 +52,7 @@ class _MachineFixedInformState extends State<MachineFixedInform> {
     setState(() {
       firstName = preferences.getString('FirstName');
       lastName = preferences.getString('LastName');
+      userType = preferences.getString('UserType');
     });
   }
 
@@ -60,9 +61,10 @@ class _MachineFixedInformState extends State<MachineFixedInform> {
           children: <Widget>[
             showHeadDrawer(),
             mainMenu(),
-            yearlyMaintenanceMenu(),
-            machineMenu(),
-            userMenu(),
+            if (userType == 'user_pharmacist' || userType == 'user_mechanic')
+              yearlyMaintenanceMenu(),
+            if (userType == 'user_pharmacist') machineMenu(),
+            if (userType == 'user_pharmacist') userMenu(),
             signOutMenu(),
           ],
         ),
@@ -242,6 +244,103 @@ class _MachineFixedInformState extends State<MachineFixedInform> {
             'แจ้งซ่อมเครื่องจักร',
             style: MyStyle().kanit,
           ),
+          actions: <Widget>[
+            PopupMenuButton<String>(
+              onSelected: (value) {
+                try {
+                  switch (value) {
+                    case 'จากรหัส A -> Z':
+                      print('จากรหัส A -> Z');
+                      setState(() {
+                        _machinesForDisplay.sort((a, b) {
+                          return a.machineCode
+                              .toString()
+                              .toLowerCase()
+                              .compareTo(
+                                  b.machineCode.toString().toLowerCase());
+                        });
+                      });
+                      break;
+                    case 'จากรหัส Z -> A':
+                      print('จากรหัส Z -> A');
+                      setState(() {
+                        _machinesForDisplay.sort((b, a) {
+                          return a.machineCode
+                              .toString()
+                              .toLowerCase()
+                              .compareTo(
+                                  b.machineCode.toString().toLowerCase());
+                        });
+                      });
+                      break;
+                    case 'จากชื่อ ก -> ฮ':
+                      print('จากชื่อ ก -> ฮ');
+                      setState(() {
+                        _machinesForDisplay.sort((a, b) {
+                          return a.machineName
+                              .toString()
+                              .toLowerCase()
+                              .compareTo(
+                                  b.machineName.toString().toLowerCase());
+                        });
+                      });
+                      break;
+                    case 'จากชื่อ ฮ -> ก':
+                      print('จากชื่อ ฮ -> ก');
+                      setState(() {
+                        _machinesForDisplay.sort((b, a) {
+                          return a.machineName
+                              .toString()
+                              .toLowerCase()
+                              .compareTo(
+                                  b.machineName.toString().toLowerCase());
+                        });
+                      });
+                      break;
+                    case 'วันที่น้อยไปมาก':
+                      print('วันที่น้อยไปมาก');
+                      setState(() {
+                        _machinesForDisplay.sort((a, b) {
+                          return a.appointmentDate
+                              .toString()
+                              .toLowerCase()
+                              .compareTo(
+                                  b.appointmentDate.toString().toLowerCase());
+                        });
+                      });
+                      break;
+                    case 'วันที่มากไปน้อย':
+                      print('วันที่มากไปน้อย');
+                      setState(() {
+                        _machinesForDisplay.sort((b, a) {
+                          return a.appointmentDate
+                              .toString()
+                              .toLowerCase()
+                              .compareTo(
+                                  b.appointmentDate.toString().toLowerCase());
+                        });
+                      });
+                      break;
+                  }
+                } catch (e) {}
+              },
+              itemBuilder: (BuildContext context) {
+                return {
+                  'จากรหัส A -> Z',
+                  'จากรหัส Z -> A',
+                  'จากชื่อ ก -> ฮ',
+                  'จากชื่อ ฮ -> ก',
+                  'วันที่น้อยไปมาก',
+                  'วันที่มากไปน้อย'
+                }.map((String choice) {
+                  return PopupMenuItem<String>(
+                    value: choice,
+                    child: Text(choice),
+                  );
+                }).toList();
+              },
+            ),
+          ],
           bottom: TabBar(
             indicatorColor: Colors.yellow,
             indicatorWeight: 7.0,
@@ -627,6 +726,26 @@ class _MachineFixedInformState extends State<MachineFixedInform> {
         setState(() {
           _refresh(_machinesForDisplay[index].machineMaintenanceStatus);
         });
+
+        AddEventLog().addEventLog(
+            machineID,
+            userIDLogin,
+            datenow,
+            '_rollbackFixMachine',
+            'ยกเลิกแจ้งซ่อมเครื่องจักร',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '');
+
         String machineCodeSnack = _machinesForDisplay[index].machineCode;
         String message =
             'เครื่องจักร $machineCodeSnack ได้ยกเลิกการแจ้งซ่อมแล้ว';

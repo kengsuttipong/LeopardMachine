@@ -183,6 +183,7 @@ class _AddUserState extends State<AddUser> {
         width: 250.0,
         child: TextField(
           onChanged: (value) => password = value.trim(),
+          obscureText: true,
           decoration: InputDecoration(
             prefixIcon: Icon(
               Icons.lock,
